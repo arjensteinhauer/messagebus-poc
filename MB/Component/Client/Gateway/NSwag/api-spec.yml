@@ -1,0 +1,155 @@
+﻿openapi: "3.0.2"
+info:
+  title: MB __ENVIRONMENT__ API Gateway v1
+  description: "MB __ENVIRONMENT__ API Gateway v1"
+  version: "1.0"
+tags:
+  - name: events
+    description: Events publishing
+  - name: message1
+    description: Message1 Magager operations
+  - name: message2
+    description: Message2 Magager operations
+paths:
+  /events/iAmAlive:
+    post:
+      summary: I am alive event
+      description: Publish the I am alive event
+      tags:
+        - events
+      requestBody:
+        description: Message for I am alive event
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IAmAliveRequest"
+      responses:
+        200:
+          description: "String result of I am alive event publish"
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /message1/echo:
+    post:
+      summary: Message1 echo call
+      description: Calls the echo chain for the Message1 Manager
+      tags:
+        - message1
+      requestBody:
+        description: Input for echo callchain
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EchoRequest"
+      responses:
+        200:
+          description: "String result of echo callchain"
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /message1/requestResponse:
+    post:
+      summary: Message1 request response call
+      description: Calls the request response via the Message Bus for the Message1 Manager
+      tags:
+        - message1
+      requestBody:
+        description: Input for request response
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestResponseRequest"
+      responses:
+        200:
+          description: "String result of request response"
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /message1/oneWay:
+    post:
+      summary: Message1 oneway call
+      description: Calls the oneway via the Message Bus for the Message1 Manager
+      tags:
+        - message1
+      requestBody:
+        description: Input for oneway
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OneWayRequest"
+      responses:
+        200:
+          description: "String result of oneway"
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /message2/echo:
+    post:
+      summary: Message2 echo call
+      description: Calls the echo chain for the Message2 Manager
+      tags:
+        - message2
+      requestBody:
+        description: Input for echo callchain
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EchoRequest"
+      responses:
+        200:
+          description: "String result of echo callchain"
+          content:
+            application/json:
+              schema:
+                type: string
+
+components:
+  schemas:
+    IAmAliveRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - message
+      properties:
+        input:
+          type: string
+
+    EchoRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - input
+      properties:
+        input:
+          type: string
+
+    RequestResponseRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - input
+      properties:
+        input:
+          type: string
+
+    OneWayRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - input
+      properties:
+        input:
+          type: string

@@ -1,0 +1,51 @@
+<h1>Events</h1>
+
+<p>This component demonstrates the interaction with Events.</p>
+
+<form (ngSubmit)="onSubmit()" #eventsForm="ngForm">
+  <div class="col-sm-9 container">
+    <div class="form-group">
+      <label for="echoText">'I am alive' event message</label>
+      <input type="text"
+             class="form-control"
+             id="eventMessageText"
+             required
+             [(ngModel)]="eventMessageText"
+             name="eventMessageText"
+             #eventMessageTextControl="ngModel" />
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-success">Publish 'I am alive' event</button>
+
+  <p></p>
+
+  <table class='table table-striped' *ngIf="publishResult || asyncResultMessage1 || asyncResultMessage2 ">
+    <thead>
+      <tr>
+        <th>Event receiver</th>
+        <th>Received event messages</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Events</td>
+        <td>{{ publishResult }}</td>
+      </tr>
+      <tr>
+        <td>Message1</td>
+        <td>{{ asyncResultMessage1 }}</td>
+      </tr>
+      <tr>
+        <td>Message2</td>
+        <td>{{ asyncResultMessage2 }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p></p>
+
+  <div [hidden]="!hasErrors" class="alert alert-danger" id="errorMessage">
+    {{errorMessage}}
+  </div>
+</form>

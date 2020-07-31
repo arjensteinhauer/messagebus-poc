@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
+    <Platforms>AnyCPU;x64</Platforms>
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+    <UserSecretsId>c3d57eb5-1c29-47ad-99e6-1002ff43f41f</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit.AspNetCore" Version="7.0.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.6" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.6" />
+    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.5.0" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.6.2" />
+    <PackageReference Include="NSwag.Generation.AspNetCore" Version="13.6.2" />
+    <PackageReference Include="NSwag.MSBuild" Version="13.6.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NSwag.SwaggerGeneration" Version="12.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Manager\Message1\Interface\MB.Manager.Message1.Interface.csproj" />
+    <ProjectReference Include="..\..\Manager\Message1\Proxy\MB.Manager.Message1.Proxy.csproj" />
+    <ProjectReference Include="..\..\Manager\Message2\Interface\MB.Manager.Message2.Interface.csproj" />
+    <ProjectReference Include="..\..\Manager\Message2\Proxy\MB.Manager.Message2.Proxy.csproj" />
+    <ProjectReference Include="..\Interface\MB.Client.Gateway.Interface.csproj" />
+  </ItemGroup>
+
+  <Target Name="NSwag" BeforeTargets="PrepareForBuild">
+    <Copy SourceFiles="@(Reference)" DestinationFolder="$(OutDir)References" />
+    <Exec Command="$(NSwagExe_Core30) run ./NSwag/api-spec.nswag /variables:Configuration=$(Configuration)" />
+    <RemoveDir Directories="$(OutDir)References" />
+  </Target>
+
+</Project>

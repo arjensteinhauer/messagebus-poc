@@ -1,0 +1,90 @@
+﻿<Window x:Class="MB.Client.Desktop.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MB.Client.Desktop.App"
+        mc:Ignorable="d"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing"
+        Title="Message Bus - proof of concept - desktop app" Height="650" Width="800">
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+        <StackPanel HorizontalAlignment="Stretch">
+            <Label Content="Message 1" HorizontalContentAlignment="Center" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" FontWeight="Bold" FontSize="16" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <Label Content="Message to echo" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBox x:Name="Message1EchoMessage" Width="100" />
+            <Button x:Name="SendMessage1Echo" Content="send echo" Margin="6,0,0,0" Padding="10,0,10,0" Click="SendMessage1Echo_Click" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+            <Label Content="Response" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="Message1Response" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
+            <Label Content="Asyn result" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="Message1AsyncEchoResult" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <Label Content="Request message" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBox x:Name="Message1RequestResponseRequestMessage" Width="100" />
+            <Button x:Name="SendMessage1RequestResponse" Content="send request" Margin="6,0,0,0" Padding="10,0,10,0" Click="SendMessage1RequestResponse_Click" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
+            <Label Content="Response" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="Message1RequestResponseResponse" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <Label Content="One way Command" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBox x:Name="Message1CommandMessage" Width="100" />
+            <Button x:Name="SendMessage1OneWayCommand" Content="send command" Margin="6,0,0,0" Padding="10,0,10,0" Click="SendMessage1OneWayCommand_Click" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+            <Label Content="Response" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="Message1OneWayCommandResponse" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
+            <Label Content="Async result" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="Message1AsyncOneWayResult" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+
+        <StackPanel HorizontalAlignment="Stretch">
+            <Label Content="Message 2" HorizontalContentAlignment="Center" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" FontWeight="Bold" FontSize="16" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <Label Content="Message to echo" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBox x:Name="Message2EchoMessage" Width="100" />
+            <Button x:Name="SendMessage2Echo" Content="send echo" Margin="6,0,0,0" Padding="10,0,10,0" Click="SendMessage2Echo_Click" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+            <Label Content="Response" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="Message2Response" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
+            <Label Content="Async result" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="Message2AsyncEchoResult" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+
+        <StackPanel HorizontalAlignment="Stretch">
+            <Label Content="Events" HorizontalContentAlignment="Center" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" FontWeight="Bold" FontSize="16" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <Label Content="Message to publish" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBox x:Name="EventsIAmAliveMessage" Width="100" />
+            <Button x:Name="PublishIAmAliveMessage" Content="Publish I am alive" Margin="6,0,0,0" Padding="10,0,10,0" Click="PublishIAmAliveMessage_Click" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+            <Label Content="Response" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="EventsIAmAliveResponse" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
+            <Label Content="Event from 'message 1'" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="Message1AsyncResult" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
+            <Label Content="Event from 'message 2'" Width="200" HorizontalContentAlignment="Right" FontWeight="Bold" />
+            <TextBlock x:Name="Message2AsyncResult" Text="" Padding="0,5,0,0" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+        </StackPanel>
+    </StackPanel>
+</Window>

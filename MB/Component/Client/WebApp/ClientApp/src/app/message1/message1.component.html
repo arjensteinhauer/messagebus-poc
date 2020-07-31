@@ -1,0 +1,75 @@
+<h1>Message 1</h1>
+
+<p>This component demonstrates the interaction with Message1.</p>
+
+<form (ngSubmit)="onSubmit()" #message1Form="ngForm">
+  <div class="col-sm-9 container">
+    <div>
+      <button type="button" class="btn btn-warning" (click)="selectCommand(0)">Echo call chain</button>&nbsp;
+      <button type="button" class="btn btn-warning" (click)="selectCommand(1)">Request/Response pattern</button>&nbsp;
+      <button type="button" class="btn btn-warning" (click)="selectCommand(2)">One way command pattern</button>
+    </div>
+
+    <p></p>
+
+    <div class="form-group" *ngIf="selectedCommand === 0">
+      <label for="echoText">Echo text</label>
+      <input type="text"
+             class="form-control"
+             id="echoText"
+             required
+             [(ngModel)]="echoText"
+             name="echoText"
+             #echoTextControl="ngModel" />
+    </div>
+    <div class="form-group" *ngIf="selectedCommand === 1">
+      <label for="requestText">Request text</label>
+      <input type="text"
+             class="form-control"
+             id="requestText"
+             required
+             [(ngModel)]="requestText"
+             name="requestText"
+             #requestTextControl="ngModel" />
+    </div>
+    <div class="form-group" *ngIf="selectedCommand === 2">
+      <label for="commandText">Command text</label>
+      <input type="text"
+             class="form-control"
+             id="commandText"
+             required
+             [(ngModel)]="commandText"
+             name="commandText"
+             #commandTextControl="ngModel" />
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-success">Send {{selectedCommandText}}</button>
+
+  <p></p>
+
+  <table class='table table-striped' *ngIf="syncResult || asyncResult">
+    <thead>
+      <tr>
+        <th>Sync or Async</th>
+        <th>{{selectedCommandText}} result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sync</td>
+        <td>{{ syncResult }}</td>
+      </tr>
+      <tr>
+        <td>Async</td>
+        <td>{{ asyncResult }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p></p>
+
+  <div [hidden]="!hasErrors" class="alert alert-danger" id="errorMessage">
+    {{errorMessage}}
+  </div>
+</form>

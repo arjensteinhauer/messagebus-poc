@@ -1,0 +1,24 @@
+steps:
+  - task: DotNetCoreCLI@2
+    displayName: ${{ format('dotnet publish {0}', parameters.applicationName) }}
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: ${{ parameters.pathToProject }}
+      arguments: ${{ format('--no-restore -c {0} -o {1}\package\{2} -r win10-x64 --self-contained true', parameters.buildConfiguration, parameters.packagePath, parameters.packageName) }}
+      zipAfterPublish: false
+      modifyOutputPath: false
+
+  - script: |
+      cd "${{ parameters.packagePath }}\package\${{ parameters.packageName }}"
+      DEL /Q /F  "appsettings.*.json"
+    displayName: "Remove local appsettings"
+
+  - task: ArchiveFiles@2
+    displayName: ${{ format('archive to {0}.zip', parameters.applicationName) }}
+    inputs:
+      rootFolderOrFile: ${{ format('{0}\package\{1}', parameters.packagePath, parameters.packageName) }}
+      includeRootFolder: false
+      archiveType: "zip"
+      archiveFile: ${{ format('{0}\{1}.zip', parameters.outputPath, parameters.applicationName) }}
+      replaceExistingArchive: true

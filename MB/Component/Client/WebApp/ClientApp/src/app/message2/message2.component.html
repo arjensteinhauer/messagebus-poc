@@ -1,0 +1,53 @@
+<h1>Message 2</h1>
+
+<p>This component demonstrates the interaction with Message2.</p>
+
+<form (ngSubmit)="onSubmit()" #message2Form="ngForm">
+  <div class="col-sm-9 container">
+    <div>
+      <button type="button" class="btn btn-warning" (click)="selectCommand(0)">Echo call chain</button>&nbsp;
+    </div>
+
+    <p></p>
+
+    <div class="form-group" *ngIf="selectedCommand === 0">
+      <label for="echoText">Echo text</label>
+      <input type="text"
+             class="form-control"
+             id="echoText"
+             required
+             [(ngModel)]="echoText"
+             name="echoText"
+             #echoTextControl="ngModel" />
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-success">Send {{selectedCommandText}}</button>
+
+  <p></p>
+
+  <table class='table table-striped' *ngIf="syncResult || asyncResult">
+    <thead>
+      <tr>
+        <th>Sync or Async</th>
+        <th>{{selectedCommandText}} result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sync</td>
+        <td>{{ syncResult }}</td>
+      </tr>
+      <tr>
+        <td>Async</td>
+        <td>{{ asyncResult }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p></p>
+
+  <div [hidden]="!hasErrors" class="alert alert-danger" id="errorMessage">
+    {{errorMessage}}
+  </div>
+</form>

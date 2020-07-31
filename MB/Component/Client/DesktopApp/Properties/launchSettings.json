@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "MB.Client.Desktop.App": {
+      "commandName": "Project"
+    }
+  }
+}

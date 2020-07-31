@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Utilities\MB.Utilities.csproj" />
+    <ProjectReference Include="..\Interface\MB.Manager.Message1.Interface.csproj" />
+  </ItemGroup>
+
+</Project>

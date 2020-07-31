@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MB.Microservice.Message2.WebJob": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "WEBJOB_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

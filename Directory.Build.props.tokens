@@ -1,0 +1,10 @@
+﻿<Project>
+  <PropertyGroup>
+    <Version>__BuildNumber__</Version>
+    <FileVersion>__BuildNumber__</FileVersion>
+    <AssemblyVersion>__BuildNumber__</AssemblyVersion>
+    <LangVersion>latest</LangVersion>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+  </PropertyGroup>
+</Project>

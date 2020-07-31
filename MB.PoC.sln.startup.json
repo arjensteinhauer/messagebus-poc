@@ -1,0 +1,63 @@
+/*
+    This is a configuration file for the SwitchStartupProject Visual Studio Extension
+    See https://bitbucket.org/thirteen/switchstartupproject/src/tip/Configuration.md
+*/
+{
+  /*  Configuration File Version  */
+  "Version": 3,
+
+  /*  Create an item in the dropdown list for each project in the solution?  */
+  "ListAllProjects": false,
+
+  /*
+      Dictionary of named configurations with one or multiple startup projects
+      and optional parameters like command line arguments and working directory.
+  */
+  "MultiProjectConfigurations": {
+    "API gateway + all microservices": {
+      "Projects": {
+        "MB\\Component\\Client\\Gateway\\MB.Client.Gateway.Service.csproj": {
+          "ProfileName": "MB.Client.Gateway.Service"
+        },
+        "MB\\Microservice\\Message1\\WebJob\\MB.Microservice.Message1.WebJob.csproj": {
+          "ProfileName": "MB.Microservice.Message1.WebJob"
+        },
+        "MB\\Microservice\\Message2\\WebJob\\MB.Microservice.Message2.WebJob.csproj": {
+          "ProfileName": "MB.Microservice.Message2.WebJob"
+        }
+      }
+    },
+    "Desktop app + API gateway + all microservices": {
+      "Projects": {
+        "MB\\Component\\Client\\DesktopApp\\MB.Client.Desktop.App.csproj": {
+          "ProfileName": "MB.Client.Desktop.App"
+        },
+        "MB\\Component\\Client\\Gateway\\MB.Client.Gateway.Service.csproj": {
+          "ProfileName": "MB.Client.Gateway.Api"
+        },
+        "MB\\Microservice\\Message1\\WebJob\\MB.Microservice.Message1.WebJob.csproj": {
+          "ProfileName": "MB.Microservice.Message1.WebJob"
+        },
+        "MB\\Microservice\\Message2\\WebJob\\MB.Microservice.Message2.WebJob.csproj": {
+          "ProfileName": "MB.Microservice.Message2.WebJob"
+        }
+      }
+    },
+    "Web app + API gateway + all microservices": {
+      "Projects": {
+        "MB\\Component\\Client\\WebApp\\MB.Client.Web.App.csproj": {
+          "ProfileName": "MB.Client.Web.App"
+        },
+        "MB\\Component\\Client\\Gateway\\MB.Client.Gateway.Service.csproj": {
+          "ProfileName": "MB.Client.Gateway.Api"
+        },
+        "MB\\Microservice\\Message1\\WebJob\\MB.Microservice.Message1.WebJob.csproj": {
+          "ProfileName": "MB.Microservice.Message1.WebJob"
+        },
+        "MB\\Microservice\\Message2\\WebJob\\MB.Microservice.Message2.WebJob.csproj": {
+          "ProfileName": "MB.Microservice.Message2.WebJob"
+        }
+      }
+    }
+  }
+}

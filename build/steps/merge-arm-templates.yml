@@ -1,0 +1,13 @@
+steps:
+  - task: Npm@1
+    displayName: "npm install -g arm-template-merge"
+    inputs:
+      command: custom
+
+      verbose: false
+
+      customCommand: "install -g arm-template-merge@1.1.2"
+
+  - script: "call arm-template-merge-command.bat"
+    displayName: ${{ format('Merge ARM templates using {0}/arm-template-merge-command.bat', parameters.workingDirectory) }}
+    workingDirectory: ${{ parameters.workingDirectory }}
