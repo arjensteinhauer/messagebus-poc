@@ -122,6 +122,32 @@ export class Message1HubClient extends SignalRHubClient {
     this.hubConnection.on('OnProcessedOneWayCommand', (eventData: ProcessedOneWayCommandEventData) => {
       this.eventAggregator.publish('Message1OnProcessedOneWayCommandResult', eventData);
     });
+
+    this.hubConnection.on('OnPublishSomething', (eventData: PublishSomethingEventData) => {
+      this.eventAggregator.publish('Message1OnPublishSomethingResult', eventData);
+    });
+  }
+
+  /**
+   * Subscribe on messages for the provided name.
+   * @param subscriptionName
+   */
+  public subscribeOnEventsFor(subscriptionName: string) {
+    this.hubConnection
+      .invoke('Subscribe', subscriptionName)
+      .then(() => console.log('Subscribed on messages for ' + subscriptionName + '...'))
+      .catch(error => console.log('Error while subscribing on ' + subscriptionName + ': ' + error));
+  }
+
+  /**
+   * Unsubscribe on messages for the provided name.
+   * @param subscriptionName
+   */
+  public unsubscribeOnEventsFor(subscriptionName: string) {
+    this.hubConnection
+      .invoke('Unsubscribe', subscriptionName)
+      .then(() => console.log('Unsubscribed on messages for ' + subscriptionName + '...'))
+      .catch(error => console.log('Error while unsubscribing on ' + subscriptionName + ': ' + error));
   }
 }
 
@@ -164,4 +190,9 @@ export interface AmAliveEventData {
 
 export interface ProcessedOneWayCommandEventData {
   result: string;
+}
+
+export interface PublishSomethingEventData {
+  name: string;
+  message: string;
 }

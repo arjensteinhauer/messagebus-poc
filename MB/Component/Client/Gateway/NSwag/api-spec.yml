@@ -95,6 +95,27 @@ paths:
               schema:
                 type: string
 
+  /message1/triggerPublishSubscribe:
+    post:
+      summary: Message1 trigger publish subscribe
+      description: Triggers the publish subscribe via the Message Bus for the Message1 Manager
+      tags:
+        - message1
+      requestBody:
+        description: Input for trigger publish subcribe
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TriggerPublishSubscribeRequest"
+      responses:
+        200:
+          description: "String result of trigger publish subscribe"
+          content:
+            application/json:
+              schema:
+                type: string
+
   /message2/echo:
     post:
       summary: Message2 echo call
@@ -152,4 +173,13 @@ components:
         - input
       properties:
         input:
+          type: string
+
+    TriggerPublishSubscribeRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+      properties:
+        name:
           type: string

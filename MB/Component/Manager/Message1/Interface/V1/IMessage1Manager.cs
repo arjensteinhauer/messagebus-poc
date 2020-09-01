@@ -9,5 +9,7 @@ namespace MB.Manager.Message1.Interface.V1
         Task OneWay(OneWayCommand command);
 
         Task<RequestResponseResponse> RequestResponse(RequestResponseRequest request);
+
+        Task TriggerPublishSubscribe(TriggerPublishSubscribeRequest request);
     }
 }

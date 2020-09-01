@@ -35,5 +35,10 @@ namespace MB.Manager.Message1.Proxy.V1
         {
             return await _requestResponseClientRequestResponse.RequestResponseOperation(request);
         }
+
+        public async Task TriggerPublishSubscribe(TriggerPublishSubscribeRequest request)
+        {
+            await _publishEndpoint.Publish<TriggerPublishSubscribeRequest>(request);
+        }
     }
 }

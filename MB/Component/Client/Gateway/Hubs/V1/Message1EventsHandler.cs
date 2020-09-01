@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MB.Client.Gateway.Service.Hubs.V1
 {
-    public class Message1EventsHandler : IEchoedEvent, IProcessedOneWayCommandEvent, IAmAliveEvent
+    public class Message1EventsHandler : IEchoedEvent, IProcessedOneWayCommandEvent, IAmAliveEvent, IPublishSomethingEvent
     {
         private readonly ILogger _logger;
         private readonly IHubContext<Message1Hub, IMessage1ManagerEvents> _hubContext;
@@ -48,6 +48,13 @@ namespace MB.Client.Gateway.Service.Hubs.V1
             {
                 await _hubContext.Clients.Client(connectionId.Value).OnAmAlive(eventData).ConfigureAwait(false);
             }
+        }
+
+        public async Task OnPublishSomething(PublishSomethingEventData eventData)
+        {
+            _logger.LogInformation($"{GetType().Namespace}.{GetType().Name}.{nameof(OnPublishSomething)} for '{eventData.Name}':\n\t--> {eventData.Message}");
+
+            await _hubContext.Clients.Group(eventData.Name).OnPublishSomething(eventData).ConfigureAwait(false);
         }
     }
 }

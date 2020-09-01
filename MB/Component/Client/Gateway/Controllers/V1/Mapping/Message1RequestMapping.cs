@@ -1,9 +1,11 @@
 ﻿using ApiEchoRequest = MB.Client.Gateway.Service.Controllers.EchoRequest;
 using ApiOneWayRequest = MB.Client.Gateway.Service.Controllers.OneWayRequest;
 using ApiRequestResponseRequest = MB.Client.Gateway.Service.Controllers.RequestResponseRequest;
+using ApiTriggerPublishSubscribeRequest = MB.Client.Gateway.Service.Controllers.TriggerPublishSubscribeRequest;
 using ManagerEchoRequest = MB.Manager.Message1.Interface.V1.EchoRequest;
 using ManagerOneWayCommand = MB.Manager.Message1.Interface.V1.OneWayCommand;
 using ManagerRequestResponseRequest = MB.Manager.Message1.Interface.V1.RequestResponseRequest;
+using ManagerTriggerPublishSubscribeRequest = MB.Manager.Message1.Interface.V1.TriggerPublishSubscribeRequest;
 
 namespace MB.Client.Gateway.Service.Controllers.V1.Mapping
 {
@@ -39,6 +41,17 @@ namespace MB.Client.Gateway.Service.Controllers.V1.Mapping
             }
             var manager = new ManagerOneWayCommand();
             manager.Input = api.Input;
+            return manager;
+        }
+
+        public static ManagerTriggerPublishSubscribeRequest Message1Map(this ApiTriggerPublishSubscribeRequest api)
+        {
+            if (api == null)
+            {
+                return null;
+            }
+            var manager = new ManagerTriggerPublishSubscribeRequest();
+            manager.Name = api.Name;
             return manager;
         }
     }

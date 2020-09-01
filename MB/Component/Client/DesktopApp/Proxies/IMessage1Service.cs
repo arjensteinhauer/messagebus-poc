@@ -14,5 +14,8 @@ namespace MB.Client.Desktop.App.Proxies
 
         [Post("/message1/requestResponse")]
         Task<string> RequestResponse([Body] RequestResponseRequest request, [Header("Message1-Connection-Id")] string connectionId);
+
+        [Post("/message1/triggerPublishSubscribe")]
+        Task<string> TriggerPublishSubscribe([Body] TriggerPublishSubscribeRequest request);
     }
 }

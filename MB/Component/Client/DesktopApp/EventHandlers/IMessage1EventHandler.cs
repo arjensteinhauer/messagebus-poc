@@ -22,6 +22,11 @@ namespace MB.Client.Desktop.App.EventHandlers
         event EventHandler<AmAliveEventData> OnAmAlive;
 
         /// <summary>
+        /// Event handler for handling OnPublishSomething events.
+        /// </summary>
+        event EventHandler<PublishSomethingEventData> OnPublishSomething;
+
+        /// <summary>
         /// SignalR connection ID.
         /// </summary>
         string ConnectionId { get; }
@@ -30,6 +35,18 @@ namespace MB.Client.Desktop.App.EventHandlers
         /// Subscribe on events.
         /// </summary>
         Task SubscribeOnEvents();
+
+        /// <summary>
+        /// Subscribe on events for a specific name.
+        /// </summary>
+        /// <param name="subscriptionName">Name of the </param>
+        Task SubscribeOnEventsFor(string subscriptionName);
+
+        /// <summary>
+        /// Unsubscribe on events for a specific name.
+        /// </summary>
+        /// <param name="subscriptionName">Name of the </param>
+        Task UnsubscribeOnEventsFor(string subscriptionName);
 
         /// <summary>
         /// Disconnect the signalR connection.
