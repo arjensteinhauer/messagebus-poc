@@ -40,5 +40,12 @@ namespace MB.Client.Gateway.Service.Controllers.V1
             var managerResponse = await message1Manager.RequestResponse(managerModel);
             return managerResponse.Map();
         }
+
+        public override async Task<string> TriggerPublishSubscribe([BindRequired, FromBody] TriggerPublishSubscribeRequest body)
+        {
+            var managerModel = body.Message1Map();
+            await message1Manager.TriggerPublishSubscribe(managerModel);
+            return $"Trigger pub/sub for '{body.Name}' delivered to the Message Bus...";
+        }
     }
 }

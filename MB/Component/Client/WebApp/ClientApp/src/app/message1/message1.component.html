@@ -7,7 +7,8 @@
     <div>
       <button type="button" class="btn btn-warning" (click)="selectCommand(0)">Echo call chain</button>&nbsp;
       <button type="button" class="btn btn-warning" (click)="selectCommand(1)">Request/Response pattern</button>&nbsp;
-      <button type="button" class="btn btn-warning" (click)="selectCommand(2)">One way command pattern</button>
+      <button type="button" class="btn btn-warning" (click)="selectCommand(2)">One way command pattern</button>&nbsp;
+      <button type="button" class="btn btn-warning" (click)="selectCommand(3)">Publish/subscribe pattern</button>
     </div>
 
     <p></p>
@@ -41,6 +42,18 @@
              [(ngModel)]="commandText"
              name="commandText"
              #commandTextControl="ngModel" />
+    </div>
+    <div class="form-group" *ngIf="selectedCommand === 3">
+      <label for="messageSubscriptionName">Message name to subscribe to</label>
+      <input type="text"
+             class="form-control"
+             id="messageSubscriptionName"
+             required
+             [(ngModel)]="messageSubscriptionName"
+             name="messageSubscriptionName"
+             #messageSubscriptionNameControl="ngModel" />
+      &nbsp;<button type="button" class="btn btn-primary" (click)="subscribe()">Subscribe</button>
+      &nbsp;<button type="button" class="btn btn-primary" (click)="unsubscribe()">Unsubscribe</button>
     </div>
   </div>
 

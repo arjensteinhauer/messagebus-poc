@@ -9,8 +9,8 @@ variables:
   buildConfiguration: "Release"
 
 jobs:
-- job: API
-  displayName: 'Build API'
+- job: API_MicroServices
+  displayName: 'Build API + micro services'
   pool:
     vmImage: 'windows-latest'
 
@@ -23,7 +23,7 @@ jobs:
       restoreSolution: "API/**/*.sln"
     displayName: "Restoring NuGet Packages"
 
-  - powershell: 'Move-Item -Path "API/Directory.Build.props.tokens" -Destination "API/Directory.Build.props" -Force'
+  - powershell: 'Move-Item -Path "Directory.Build.props.tokens" -Destination "Directory.Build.props" -Force'
     displayName: "Replace Directory.Build.props with tokenized version"
 
   - task: replacetokens@3

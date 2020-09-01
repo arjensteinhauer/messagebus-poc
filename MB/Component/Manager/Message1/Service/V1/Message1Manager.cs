@@ -45,6 +45,14 @@ namespace MB.Manager.Message1.Service.V1
             return await Task.FromResult(new RequestResponseResponse { Result = result });
         }
 
+        public async Task TriggerPublishSubscribe(TriggerPublishSubscribeRequest request)
+        {
+            var result = $"{Environment.MachineName}.{GetType().Namespace}.{GetType().Name}.{nameof(TriggerPublishSubscribe)} for '{request.Name}'.";
+            _logger.LogInformation(result);
+
+            await _message1ManagerEvents.OnPublishSomething(new PublishSomethingEventData { Name = request.Name, Message = $"Some message from {Environment.MachineName} published on {DateTime.Now:dd-MM-yyyy HH:mm:ss}" });
+        }
+
         public async Task OnAmAlive(AmAliveEventData_External eventData)
         {
             var result = $"Received message '{eventData.Message}'. {Environment.MachineName}.{GetType().Namespace}.{GetType().Name}.{nameof(OnAmAlive)} is alive too.";

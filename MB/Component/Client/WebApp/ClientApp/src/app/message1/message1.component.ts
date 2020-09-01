@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Message1Client, EchoRequest, RequestResponseRequest, OneWayRequest } from '../services/gatewayClient.service';
-import { Message1HubClient, EchoedEventData, ProcessedOneWayCommandEventData } from '../services/gatewayHubClient.service';
+import { Message1Client, EchoRequest, RequestResponseRequest, OneWayRequest, TriggerPublishSubscribeRequest } from '../services/gatewayClient.service';
+import { Message1HubClient, EchoedEventData, ProcessedOneWayCommandEventData, PublishSomethingEventData } from '../services/gatewayHubClient.service';
 import { EventAggregator } from '../services/eventAggregator'
 
 @Component({
@@ -14,6 +14,7 @@ export class Message1Component implements OnInit, OnDestroy {
   public echoText: string;
   public requestText: string;
   public commandText: string;
+  public messageSubscriptionName: string;
   public syncResult: string;
   public asyncResult: string;
   public errorMessage: string;
@@ -31,6 +32,9 @@ export class Message1Component implements OnInit, OnDestroy {
     });
     this.onProcessedOneWayCommandEvent = this.eventAggregator.listen('Message1OnProcessedOneWayCommandResult').subscribe((eventData: ProcessedOneWayCommandEventData) => {
       this.asyncResult = eventData.result;
+    });
+    this.onEchoedEvent = this.eventAggregator.listen('Message1OnPublishSomethingResult').subscribe((eventData: PublishSomethingEventData) => {
+      this.asyncResult = eventData.message;
     });
   }
 
@@ -51,6 +55,16 @@ export class Message1Component implements OnInit, OnDestroy {
     this.Clear();
   }
 
+  public subscribe() {
+    this.message1HubClient.subscribeOnEventsFor(this.messageSubscriptionName);
+    this.syncResult = 'Subscription started...';
+  }
+
+  public unsubscribe() {
+    this.message1HubClient.unsubscribeOnEventsFor(this.messageSubscriptionName);
+    this.syncResult = 'Unsubscribed from messages';
+  }
+
   public onSubmit() {
     this.Clear();
 
@@ -63,6 +77,9 @@ export class Message1Component implements OnInit, OnDestroy {
         break;
       case Message1Commands.OneWay:
         this.oneWay();
+        break;
+      case Message1Commands.PublishSubscribe:
+        this.triggerPublishSubscribe();
         break;
     }
   }
@@ -106,6 +123,19 @@ export class Message1Component implements OnInit, OnDestroy {
       });
   }
 
+  private triggerPublishSubscribe() {
+    let request = new TriggerPublishSubscribeRequest({ name: this.messageSubscriptionName });
+
+    this.message1Client
+      .triggerPublishSubscribe(request)
+      .subscribe((response: string) => {
+        this.syncResult = response;
+      }, error => {
+        this.errorMessage = error;
+        this.hasErrors = true;
+      });
+  }
+
   private Clear() {
     this.hasErrors = false;
     this.syncResult = "";
@@ -116,5 +146,6 @@ export class Message1Component implements OnInit, OnDestroy {
 enum Message1Commands {
   Echo = 0,
   RequestResponse = 1,
-  OneWay = 2
+  OneWay = 2,
+  PublishSubscribe = 3
 }

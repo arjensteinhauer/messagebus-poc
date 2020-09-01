@@ -11,6 +11,7 @@ using Message2AmAliveEventData = MB.Manager.Message2.Interface.V1.AmAliveEventDa
 using Message2EchoedEventData = MB.Manager.Message2.Interface.V1.EchoedEventData;
 using OneWayRequest = MB.Client.Gateway.Service.Contracts.OneWayRequest;
 using RequestResponseRequest = MB.Client.Gateway.Service.Contracts.RequestResponseRequest;
+using TriggerPublishSubscribeRequest = MB.Client.Gateway.Service.Contracts.TriggerPublishSubscribeRequest;
 
 namespace MB.Client.Desktop.App
 {
@@ -43,6 +44,7 @@ namespace MB.Client.Desktop.App
             _message1EventHandler.OnEchoed += Message1EventHandler_OnEchoed;
             _message1EventHandler.OnProcessedOneWayCommand += Message1EventHandler_OnProcessedOneWayCommand;
             _message1EventHandler.OnAmAlive += Message1EventHandler_OnAmAlive;
+            _message1EventHandler.OnPublishSomething += Message1EventHandler_OnPublishSomething;
 
             _message2EventHandler.OnEchoed += Message2EventHandler_OnEchoed;
             _message2EventHandler.OnAmAlive += Message2EventHandler_OnAmAlive;
@@ -78,6 +80,15 @@ namespace MB.Client.Desktop.App
             });
         }
 
+        private async void Message1EventHandler_OnPublishSomething(object sender, PublishSomethingEventData eventData)
+        {
+            // synchronize with the UI thread (because we're about to update the UI)
+            await App.Current.Dispatcher.InvokeAsync(() =>
+            {
+                Message1PublishedEventResult.Text = eventData.Message;
+            });
+        }
+
         private async void Message2EventHandler_OnEchoed(object sender, Message2EchoedEventData eventData)
         {
             // synchronize with the UI thread (because we're about to update the UI)
@@ -100,9 +111,19 @@ namespace MB.Client.Desktop.App
         {
             try
             {
+                MessageBox.Show("Press OK to start the SignalR subscriptions", "STARTING...");
+
                 // subscribe to SignalR events
                 await _message1EventHandler.SubscribeOnEvents().ConfigureAwait(false);
                 await _message2EventHandler.SubscribeOnEvents().ConfigureAwait(false);
+
+                // synchronize with the UI thread (because we're about to update the UI)
+                await App.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    // disable some buttons
+                    Message1Unsubscribe.IsEnabled = false;
+                    Message1Trigger.IsEnabled = false;
+                });
             }
             catch (Exception ex)
             {
@@ -260,6 +281,82 @@ namespace MB.Client.Desktop.App
             }
 
             return errorMessage;
+        }
+
+        private async void Message1Subscribe_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(Message1SubscriptionName.Text))
+                {
+                    throw new Exception("Please provide a valid message name to subscribe to");
+                }
+
+                await _message1EventHandler.SubscribeOnEventsFor(Message1SubscriptionName.Text);
+
+                // synchronize with the UI thread (because we're about to update the UI)
+                await App.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    Message1Subscribe.IsEnabled = false;
+                    Message1Unsubscribe.IsEnabled = true;
+                    Message1Trigger.IsEnabled = true;
+                    Message1SubscriptionName.IsEnabled = false;
+                });
+            }
+            catch (Exception ex)
+            {
+                string errorText = GetExceptionMessageText(ex);
+                MessageBox.Show(errorText);
+            }
+        }
+
+        private async void Message1Unsubscribe_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await _message1EventHandler.UnsubscribeOnEventsFor(Message1SubscriptionName.Text);
+
+                // synchronize with the UI thread (because we're about to update the UI)
+                await App.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    Message1Subscribe.IsEnabled = true;
+                    Message1Unsubscribe.IsEnabled = false;
+                    Message1Trigger.IsEnabled = false;
+                    Message1SubscriptionName.IsEnabled = true;
+
+                    Message1TriggerResponse.Text = "";
+                    Message1PublishedEventResult.Text = "";
+                });
+            }
+            catch (Exception ex)
+            {
+                string errorText = GetExceptionMessageText(ex);
+                MessageBox.Show(errorText);
+            }
+        }
+
+        private async void Message1Trigger_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Message1TriggerResponse.Text = "";
+                Message1PublishedEventResult.Text = "";
+
+                var request = new TriggerPublishSubscribeRequest { Name = Message1SubscriptionName.Text };
+
+                string result = await _message1Service.TriggerPublishSubscribe(request).ConfigureAwait(false);
+
+                // synchronize with the UI thread (because we're about to update the UI)
+                await App.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    Message1TriggerResponse.Text = result;
+                });
+            }
+            catch (Exception ex)
+            {
+                string errorText = GetExceptionMessageText(ex);
+                MessageBox.Show(errorText);
+            }
         }
     }
 }

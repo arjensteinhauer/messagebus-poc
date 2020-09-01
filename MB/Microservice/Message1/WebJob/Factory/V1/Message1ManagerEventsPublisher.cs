@@ -27,5 +27,10 @@ namespace MB.Microservice.Message1.WebJob.Factory.V1
         {
             await _publishEndPoint.Publish<AmAliveEventData>(eventData);
         }
+
+        public async Task OnPublishSomething(PublishSomethingEventData eventData)
+        {
+            await _publishEndPoint.Publish<PublishSomethingEventData>(eventData);
+        }
     }
 }

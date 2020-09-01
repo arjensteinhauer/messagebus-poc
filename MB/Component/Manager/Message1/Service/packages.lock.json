@@ -28,7 +28,6 @@
       "mb.manager.message1.interface": {
         "type": "Project"
       }
-    },
-    ".NETStandard,Version=v2.0/win10-x64": {}
+    }
   }
 }

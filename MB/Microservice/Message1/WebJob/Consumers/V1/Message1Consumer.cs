@@ -13,6 +13,7 @@ namespace MB.Microservice.Message1.WebJob.Consumers.V1
         IConsumer<EchoRequest>,
         IConsumer<OneWayCommand>,
         IConsumer<RequestResponseRequest>,
+        IConsumer<TriggerPublishSubscribeRequest>,
         IConsumer<AmAliveEventData>
     {
         private readonly Message1Manager _message1Manager;
@@ -39,6 +40,11 @@ namespace MB.Microservice.Message1.WebJob.Consumers.V1
             var result = await _message1Manager.RequestResponse(context.Message);
 
             await context.RespondAsync<RequestResponseResponse>(result);
+        }
+
+        public Task Consume(ConsumeContext<TriggerPublishSubscribeRequest> context)
+        {
+            return _message1Manager.TriggerPublishSubscribe(context.Message);
         }
 
         public async Task Consume(ConsumeContext<AmAliveEventData> context)

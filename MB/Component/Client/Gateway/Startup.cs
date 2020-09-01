@@ -7,7 +7,6 @@ using MB.Manager.Message1.Proxy.V1;
 using MB.Manager.Message2.Interface.V1;
 using MB.Manager.Message2.Proxy.V1;
 using MB.Utilities;
-using MB.Utilities.ApiKeys;
 using MB.Utilities.Extensions;
 using MB.Utilities.MessageBus;
 using Microsoft.ApplicationInsights.DependencyCollector;
@@ -157,6 +156,7 @@ namespace MB.Client.Gateway.Service
             services.AddScoped<IMessage1EchoedEvent, Message1EventsHandler>();
             services.AddScoped<IProcessedOneWayCommandEvent, Message1EventsHandler>();
             services.AddScoped<IMessage1AmAliveEvent, Message1EventsHandler>();
+            services.AddScoped<IPublishSomethingEvent, Message1EventsHandler>();
 
             // message 2 manager service proxy
             services.AddScoped<IMessage2Manager, Message2ManagerClient>();
@@ -193,6 +193,10 @@ namespace MB.Client.Gateway.Service
             services.AddScoped<IRequestResponseClient<RequestResponseRequest, RequestResponseResponse>, RequestResponseClient<RequestResponseRequest, RequestResponseResponse>>();
 
             services.AddScoped<IRequestResponseClient<Message2EchoRequest, Message2EchoResponse>, RequestResponseClient<Message2EchoRequest, Message2EchoResponse>>();
+
+            // events subscriber
+            services.AddSingleton<IMessageBusControl, MessageBusControl>();
+            services.AddSingleton<IEventSubscriber, EventSubscriber>();
 
             services.AddMassTransitHostedService();
         }

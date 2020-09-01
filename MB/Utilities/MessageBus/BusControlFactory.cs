@@ -1,8 +1,6 @@
-﻿using GreenPipes;
-using MassTransit;
+﻿using MassTransit;
 using MassTransit.Context;
 using MB.Utilities.Exceptions;
-using MB.Utilities.Extensions;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Primitives;
 using Microsoft.Extensions.Configuration;
@@ -30,12 +28,8 @@ namespace MB.Utilities.MessageBus
                         configure.Host(new Uri(messageBusConnectionString), _ => { });
                         configure.ConfigureEndpoints(context);
 
-                        // set operation context sending/publishing messages
-                        configure.ConfigurePublish(pipeConfig => pipeConfig.UseExecute(publishContext => publishContext.Headers.AddToMassTransitMessage(OperationContext.Current?.OutgoingHeaders)));
-                        configure.ConfigureSend(pipeConfig => pipeConfig.UseExecute(sendContext => sendContext.Headers.AddToMassTransitMessage(OperationContext.Current?.OutgoingHeaders)));
-
-                        // get operation context consuming messages
-                        configure.UseExecute(consumeContext => _ = new OperationContext(consumeContext.Headers.FromMassTransitMessage()));
+                        // use te the generic message context (operation context) in sending and receiving
+                        configure.UseMessageContext();
                     });
 
                     return busControl;
@@ -62,12 +56,8 @@ namespace MB.Utilities.MessageBus
                         configure.SetNamespaceSeparatorTo("_");
                         configure.ConfigureEndpoints(context);
 
-                        // set operation context sending/publishing messages
-                        configure.ConfigurePublish(pipeConfig => pipeConfig.UseExecute(publishContext => publishContext.Headers.AddToMassTransitMessage(OperationContext.Current?.OutgoingHeaders)));
-                        configure.ConfigureSend(pipeConfig => pipeConfig.UseExecute(sendContext => sendContext.Headers.AddToMassTransitMessage(OperationContext.Current?.OutgoingHeaders)));
-
-                        // get operation context consuming messages
-                        configure.UseExecute(consumeContext => _ = new OperationContext(consumeContext.Headers.FromMassTransitMessage()));
+                        // use te the generic message context (operation context) in sending and receiving
+                        configure.UseMessageContext();
                     });
 
                     return busControl;

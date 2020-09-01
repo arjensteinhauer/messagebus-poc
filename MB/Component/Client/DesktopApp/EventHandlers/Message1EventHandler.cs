@@ -28,6 +28,11 @@ namespace MB.Client.Desktop.App.EventHandlers
         public event EventHandler<AmAliveEventData> OnAmAlive;
 
         /// <summary>
+        /// Event handler for handling OnPublishSomething events.
+        /// </summary>
+        public event EventHandler<PublishSomethingEventData> OnPublishSomething;
+
+        /// <summary>
         /// SignalR connection ID.
         /// </summary>
         public string ConnectionId { get; private set; }
@@ -45,6 +50,7 @@ namespace MB.Client.Desktop.App.EventHandlers
                 _connection.Remove("OnEchoed");
                 _connection.Remove("OnProcessedOneWayCommand");
                 _connection.Remove("OnAmAlive");
+                _connection.Remove("OnPublishSomething");
                 return Task.FromResult(true);
             };
             _connection.Reconnected += async (connectionId) =>
@@ -74,6 +80,10 @@ namespace MB.Client.Desktop.App.EventHandlers
             {
                 OnAmAlive?.Invoke(this, eventData);
             });
+            _connection.On<PublishSomethingEventData>("OnPublishSomething", (eventData) =>
+            {
+                OnPublishSomething?.Invoke(this, eventData);
+            });
 
             if (_connection.State == HubConnectionState.Disconnected)
             {
@@ -81,6 +91,34 @@ namespace MB.Client.Desktop.App.EventHandlers
 
                 ConnectionId = _connection.ConnectionId;
             }
+        }
+
+        /// <summary>
+        /// Subscribe on events for a specific name.
+        /// </summary>
+        /// <param name="subscriptionName">Name of the </param>
+        public async Task SubscribeOnEventsFor(string subscriptionName)
+        {
+            if (_connection.State != HubConnectionState.Connected)
+            {
+                throw new Exception("Not connected through SignalR");
+            }
+
+            await _connection.InvokeAsync("Subscribe", subscriptionName);
+        }
+
+        /// <summary>
+        /// Unsubscribe on events for a specific name.
+        /// </summary>
+        /// <param name="subscriptionName">Name of the </param>
+        public async Task UnsubscribeOnEventsFor(string subscriptionName)
+        {
+            if (_connection.State != HubConnectionState.Connected)
+            {
+                throw new Exception("Not connected through SignalR");
+            }
+
+            await _connection.InvokeAsync("Unsubscribe", subscriptionName);
         }
 
         /// <summary>

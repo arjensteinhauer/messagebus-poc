@@ -46,6 +46,12 @@ namespace MB.Client.Gateway.Service.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("message1/oneWay")]
         public abstract System.Threading.Tasks.Task<string> OneWay([Microsoft.AspNetCore.Mvc.FromBody] [Microsoft.AspNetCore.Mvc.ModelBinding.BindRequired] OneWayRequest body);
     
+        /// <summary>Message1 trigger publish subscribe</summary>
+        /// <param name="body">Input for trigger publish subcribe</param>
+        /// <returns>String result of trigger publish subscribe</returns>
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("message1/triggerPublishSubscribe")]
+        public abstract System.Threading.Tasks.Task<string> TriggerPublishSubscribe([Microsoft.AspNetCore.Mvc.FromBody] [Microsoft.AspNetCore.Mvc.ModelBinding.BindRequired] TriggerPublishSubscribeRequest body);
+    
     }
     
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.6.2.0 (NJsonSchema v10.1.23.0 (Newtonsoft.Json v12.0.0.0))")]
@@ -94,6 +100,16 @@ namespace MB.Client.Gateway.Service.Controllers
         [Newtonsoft.Json.JsonProperty("input", Required = Newtonsoft.Json.Required.Always)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Input { get; set; }
+    
+    
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.1.23.0 (Newtonsoft.Json v12.0.0.0)")]
+    public partial class TriggerPublishSubscribeRequest 
+    {
+        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Name { get; set; }
     
     
     }
