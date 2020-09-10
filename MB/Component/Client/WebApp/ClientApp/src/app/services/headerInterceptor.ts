@@ -13,15 +13,17 @@ export class HeaderInterceptor {
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
+    let headers = request.headers;
+    headers = headers.set("TenantName", "tenant1");
+
     if (MessageHubConnectionManager.connectionIds) {
 
-      let headers = request.headers;
       MessageHubConnectionManager.connectionIds.forEach(connection => {
         headers = headers.set(connection.httpHeaderName, connection.connectionId);
       });
-
-      request = request.clone({ headers });
     }
+
+    request = request.clone({ headers });
 
     return next.handle(request);
   }

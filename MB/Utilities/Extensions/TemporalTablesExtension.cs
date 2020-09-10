@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace MB.Utilities
+namespace MB.Utilities.Extensions
 {
     public static class TemporalTablesExtension
     {

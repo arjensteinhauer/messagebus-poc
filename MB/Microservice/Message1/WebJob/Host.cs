@@ -1,7 +1,12 @@
 ﻿using MassTransit;
+using MB.Access.Tenant.Database;
+using MB.Access.Tenant.Interface.V1;
+using MB.Access.Tenant.Service.V1;
 using MB.Manager.Message1.Interface.V1;
 using MB.Microservice.Message1.WebJob.Consumers.V1;
 using MB.Microservice.Message1.WebJob.Factory.V1;
+using MB.Utilities;
+using MB.Utilities.AccessTokenProvider;
 using MB.Utilities.Extensions;
 using MB.Utilities.MessageBus;
 using Microsoft.ApplicationInsights.DependencyCollector;
@@ -103,6 +108,14 @@ namespace MB.Microservice.Message1.WebJob
                     module.IncludeDiagnosticSourceActivities.Add("MassTransit");
                 });
             }
+
+            // utility services
+            services.AddSingleton<IAccessTokenProvider>((provider) => ConfigurationBuilderExtensions.IsLocalDevelopment() ? null : new AccessTokenProvider());
+
+            // tenant access service
+            services.AddDbContext<TenantContext>();
+            services.AddScoped<ITenantContextFactory<TenantContext>, TenantContextFactory>();
+            services.AddScoped<ITenantAccess, TenantAccess>();
 
             // notification manager service
             services.AddScoped<IMessage1ManagerFactory, Message1ManagerFactory>();
