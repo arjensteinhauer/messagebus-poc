@@ -138,6 +138,7 @@ namespace MB.Client.Gateway.Service
             // custom middleware handlers
             app.UseCustomExceptionHandler();
             app.UseCorrelationIdHandler();
+            app.UseTenantNameHandler();
             app.UseSignalRConnectionIdHandler();
 
             // endpoint mapping
