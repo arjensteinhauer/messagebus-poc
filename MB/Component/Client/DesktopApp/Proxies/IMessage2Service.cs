@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace MB.Client.Desktop.App.Proxies
 {
+    [Headers("TenantName: tenant2")]
     public interface IMessage2Service
     {
         [Post("/message2/echo")]

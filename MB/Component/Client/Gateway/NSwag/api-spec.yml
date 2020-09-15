@@ -10,6 +10,8 @@ tags:
     description: Message1 Magager operations
   - name: message2
     description: Message2 Magager operations
+  - name: image
+    description: Image Magager operations
 paths:
   /events/iAmAlive:
     post:
@@ -137,6 +139,132 @@ paths:
               schema:
                 type: string
 
+  /image/search:
+    post:
+      summary: Search images call
+      description: Search for images
+      tags:
+        - image
+      requestBody:
+        description: Input for search images
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        200:
+          description: "Response with images search result"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageSearchResponse'
+
+  /image/getDetails:
+    post:
+      summary: Get image details call
+      description: Get the image details
+      tags:
+        - image
+      requestBody:
+        description: Input for get image details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetImageDetailsRequest'
+      responses:
+        200:
+          description: "Response with image details"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetImageDetailsResponse'
+  
+  /image/add:
+    post:
+      summary: Add new image call
+      description: Add a new image
+      tags:
+        - image
+      requestBody:
+        description: Input for add new image
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddImageRequest'
+      responses:
+        200:
+          description: "Response of the add image request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddImageResponse'
+  
+  /image/updateDetails:
+    post:
+      summary: Update image details
+      description: Update the details of an existing image
+      tags:
+        - image
+      requestBody:
+        description: Input for update image details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateImageDetailsRequest'
+      responses:
+        200:
+          description: "Response of the update image details request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateImageDetailsResponse'
+  
+  /image/delete:
+    post:
+      summary: Delete image
+      description: Delete an existing image
+      tags:
+        - image
+      requestBody:
+        description: Input for delete image
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteImageRequest'
+      responses:
+        200:
+          description: "Response of the delete image request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteImageResponse'
+  
+  /image/process:
+    post:
+      summary: Process image
+      description: Process the provided image content
+      tags:
+        - image
+      requestBody:
+        description: Input for process image
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessImageRequest'
+      responses:
+        200:
+          description: "Response of the process image request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessImageResponse'
+
 components:
   schemas:
     IAmAliveRequest:
@@ -183,3 +311,295 @@ components:
       properties:
         name:
           type: string
+
+    SearchRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        search:
+          type: string
+          nullable: true
+        top:
+          type: integer
+          nullable: true
+          format: int32
+        skip:
+          type: integer
+          nullable: true
+          format: int32
+        orderBy:
+          type: string
+          nullable: true
+        sortOrder:
+          type: string
+          nullable: true
+        filters:
+          type: object
+          nullable: true
+          additionalProperties:
+            $ref: '#/components/schemas/SearchFilterItem'
+        oDataFilter:
+          type: string
+        language:
+          $ref: '#/components/schemas/SearchLanguage'
+
+    SearchFilterItem:
+      type: object
+      additionalProperties: false
+      properties:
+        value:
+          type: string
+          nullable: true
+        valueType:
+          type: string
+          nullable: true
+
+    SearchLanguage:
+        type: string
+        enum:
+        - 'nl'
+        - 'en'
+        - 'de'
+        default: 'nl'
+
+    ImageSearchResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        totalResultCount:
+          type: integer
+          format: int64
+        searchLanguage:
+          $ref: '#/components/schemas/SearchLanguage'
+        searchResult:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/Image'
+
+    Image:
+      type: object
+      additionalProperties: false
+      properties:
+        imageId:
+          type: string
+        partId:
+          type: string
+          nullable: true
+        orderId:
+          type: string
+          nullable: true
+        favorites:
+          type: array
+          nullable: true
+          items:
+            type: string
+        tags:
+          type: array
+          nullable: true
+          items:
+            type: string
+        urls:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/ImageUrl'
+
+    ImageUrl:
+      type: object
+      additionalProperties: false
+      properties:
+        url:
+          type: string
+        imageType:
+          $ref: '#/components/schemas/ImageType'
+
+    ImageType:
+        type: string
+        enum:
+        - 'default'
+        - 'thumbnail'
+        - 'original'
+        default: 'default'
+
+    GetImageDetailsRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - imageId
+      properties:
+        imageId:
+          type: string
+
+    GetImageDetailsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        imageDetails:
+          $ref: '#/components/schemas/Image'
+
+    AddImageRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        imageContent:
+          type: string
+          format: byte
+        imageDetails:
+          $ref: '#/components/schemas/Image'
+
+    AddImageResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        imageDetails:
+          $ref: '#/components/schemas/Image'
+
+    UpdateImageDetailsRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        imageDetails:
+          $ref: '#/components/schemas/Image'
+
+    UpdateImageDetailsResponse:
+      type: object
+      additionalProperties: false
+
+    DeleteImageRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - imageId
+      properties:
+        imageId:
+          type: string
+
+    DeleteImageResponse:
+      type: object
+      additionalProperties: false
+
+    ProcessImageRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        imageContent:
+          type: string
+          format: binary
+        processDetails:
+          oneOf:
+          - $ref: '#/components/schemas/ImageProcessDetailsSaveOnly'
+          - $ref: '#/components/schemas/ImageProcessDetailsCrop'
+          - $ref: '#/components/schemas/ImageProcessDetailsResize'
+          - $ref: '#/components/schemas/ImageProcessDetailsRotate'
+          discriminator:
+            propertyName: processingType
+            mapping:
+              saveOnly: '#/components/schemas/ImageProcessDetailsSaveOnly'
+              crop: '#/components/schemas/ImageProcessDetailsCrop'
+              resize: '#/components/schemas/ImageProcessDetailsResize'
+              rotate: '#/components/schemas/ImageProcessDetailsRotate'
+      required:
+        - imageContent
+        - processDetails
+
+    ImageProcessDetails:
+      type: object
+      additionalProperties: false
+      discriminator:
+        propertyName: processingType
+        mapping:
+          saveOnly: '#/components/schemas/ImageProcessDetailsSaveOnly'
+          crop: '#/components/schemas/ImageProcessDetailsCrop'
+          resize: '#/components/schemas/ImageProcessDetailsResize'
+          rotate: '#/components/schemas/ImageProcessDetailsRotate'
+      properties:
+        processingType:
+          $ref: '#/components/schemas/ImageProcessingType'
+        storeAfterProcessing:
+          type: boolean
+          default: true
+      required:
+        - processingType
+
+    ImageProcessDetailsSaveOnly:
+      type: object
+      additionalProperties: false
+      properties:
+      allOf:
+      - $ref: '#/components/schemas/ImageProcessDetails'
+
+    ImageProcessDetailsCrop:
+      type: object
+      additionalProperties: false
+      properties:
+      allOf:
+      - $ref: '#/components/schemas/ImageProcessDetails'
+      - type: object
+        properties:
+          x:
+            type: integer
+            format: int32
+          y:
+            type: integer
+            format: int32
+          width:
+            type: integer
+            format: int32
+          height:
+            type: integer
+            format: int32
+        required:
+        - x
+        - y
+        - width
+        - height
+
+    ImageProcessDetailsResize:
+      type: object
+      additionalProperties: false
+      properties:
+      allOf:
+      - $ref: '#/components/schemas/ImageProcessDetails'
+      - type: object
+        properties:
+          width:
+            type: integer
+            format: int32
+          height:
+            type: integer
+            format: int32
+        required:
+        - width
+        - height
+
+    ImageProcessDetailsRotate:
+      type: object
+      additionalProperties: false
+      properties:
+      allOf:
+      - $ref: '#/components/schemas/ImageProcessDetails'
+      - type: object
+        properties:
+          angle:
+            type: integer
+            format: int32
+        required:
+        - angle
+
+    ProcessImageResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        imageContent:
+          type: string
+          format: binary
+
+    ImageProcessingType:
+      type: string
+      enum:
+      - 'saveOnly'
+      - 'crop'
+      - 'resize'
+      - 'rotate'
+      default: 'saveOnly'

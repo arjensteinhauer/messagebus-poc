@@ -24,6 +24,10 @@
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="7.0.3" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="7.0.3" />
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.14.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.7" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
@@ -31,6 +35,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.7" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Component\Access\Database\MB.Access.Tenant.Database.csproj" />
+    <ProjectReference Include="..\..\..\Component\Access\Service\MB.Access.Tenant.Service.csproj" />
     <ProjectReference Include="..\..\..\Component\Manager\Message2\Service\MB.Manager.Message2.Service.csproj" />
     <ProjectReference Include="..\..\..\Utilities\MB.Utilities.csproj" />
   </ItemGroup>

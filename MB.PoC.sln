@@ -79,11 +79,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Access", "Access", "{00F1F9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tenant", "Tenant", "{B1298891-474A-417E-B47F-DF1EFA6F8215}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MB.Access.Tenant.Interface", "MB\Component\Access\Interface\MB.Access.Tenant.Interface.csproj", "{1829B33A-7554-45CC-8B94-3E2B8745C7FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MB.Access.Tenant.Interface", "MB\Component\Access\Interface\MB.Access.Tenant.Interface.csproj", "{1829B33A-7554-45CC-8B94-3E2B8745C7FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MB.Access.Tenant.Service", "MB\Component\Access\Service\MB.Access.Tenant.Service.csproj", "{21CCCCF1-C07A-4CB9-B0DD-E619D63C5D9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MB.Access.Tenant.Service", "MB\Component\Access\Service\MB.Access.Tenant.Service.csproj", "{21CCCCF1-C07A-4CB9-B0DD-E619D63C5D9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MB.Access.Tenant.Database", "MB\Component\Access\Database\MB.Access.Tenant.Database.csproj", "{2F6CDA40-D8D7-4268-AB6E-D4D0CE695638}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MB.Access.Tenant.Database", "MB\Component\Access\Database\MB.Access.Tenant.Database.csproj", "{2F6CDA40-D8D7-4268-AB6E-D4D0CE695638}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{01B553C6-452D-4553-9068-84692B6C0064}"
+EndProject
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "MB.Azure", "MB\Infrastructure\MB.Azure\MB.Azure.deployproj", "{61A32086-085B-415E-AC5B-5AD1D832E47A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -229,6 +233,14 @@ Global
 		{2F6CDA40-D8D7-4268-AB6E-D4D0CE695638}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2F6CDA40-D8D7-4268-AB6E-D4D0CE695638}.Release|x64.ActiveCfg = Release|Any CPU
 		{2F6CDA40-D8D7-4268-AB6E-D4D0CE695638}.Release|x64.Build.0 = Release|Any CPU
+		{61A32086-085B-415E-AC5B-5AD1D832E47A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61A32086-085B-415E-AC5B-5AD1D832E47A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61A32086-085B-415E-AC5B-5AD1D832E47A}.Debug|x64.ActiveCfg = Debug|x64
+		{61A32086-085B-415E-AC5B-5AD1D832E47A}.Debug|x64.Build.0 = Debug|x64
+		{61A32086-085B-415E-AC5B-5AD1D832E47A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61A32086-085B-415E-AC5B-5AD1D832E47A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61A32086-085B-415E-AC5B-5AD1D832E47A}.Release|x64.ActiveCfg = Release|x64
+		{61A32086-085B-415E-AC5B-5AD1D832E47A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -266,6 +278,8 @@ Global
 		{1829B33A-7554-45CC-8B94-3E2B8745C7FB} = {B1298891-474A-417E-B47F-DF1EFA6F8215}
 		{21CCCCF1-C07A-4CB9-B0DD-E619D63C5D9D} = {B1298891-474A-417E-B47F-DF1EFA6F8215}
 		{2F6CDA40-D8D7-4268-AB6E-D4D0CE695638} = {B1298891-474A-417E-B47F-DF1EFA6F8215}
+		{01B553C6-452D-4553-9068-84692B6C0064} = {5CF6933E-ED70-4002-8A99-2CBD8C4C7527}
+		{61A32086-085B-415E-AC5B-5AD1D832E47A} = {01B553C6-452D-4553-9068-84692B6C0064}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2C5BB944-E0A5-46A9-9941-358EE751E716}

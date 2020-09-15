@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace MB.Client.Desktop.App.Proxies
 {
+    [Headers("TenantName: tenant2")]
     public interface IEventsService
     {
         [Post("/events/iAmAlive")]

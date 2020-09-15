@@ -1,0 +1,422 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MB.namePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Prefix for the resource names."
+      }
+    },
+    "MB.environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment of the resource. E.g. d, t, a or p."
+      }
+    },
+    "MB.sequenceNumber": {
+      "type": "int",
+      "metadata": {
+        "description": "Sequence number for the resources."
+      }
+    },
+    "MB.Database.instanceCount": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "MB.Database.sqlServerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the SQL server."
+      }
+    },
+    "MB.Database.sqlTenantMessageDatabaseName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the TetantMessage SQL database."
+      }
+    },
+    "MB.Database.collation": {
+      "type": "string",
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+      "metadata": {
+        "description": "The database collation for governing the proper use of characters."
+      }
+    },
+    "MB.Database.edition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [ "Basic", "Standard", "Premium" ],
+      "metadata": {
+        "description": "The type of database to create."
+      }
+    },
+    "MB.Database.maxSizeBytes": {
+      "type": "string",
+      "defaultValue": "1073741824",
+      "metadata": {
+        "description": "The maximum size, in bytes, for the database."
+      }
+    },
+    "MB.Database.requestedServiceObjectiveName": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [ "Basic", "S0", "S1", "S2", "P1", "P2", "P3" ],
+      "metadata": {
+        "description": "Describes the performance level for Edition."
+      }
+    },
+    "MB.Database.sqlAdminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the SQL server administrator."
+      }
+    },
+    "MB.Database.sqlAdminPassword": {
+      "type": "string",
+      "metadata": {
+        "description": "Password of the SQL server administrator."
+      }
+    },
+    "MB.Database.aadAdminLogin": {
+      "type": "string",
+      "defaultValue": "ADMIN",
+      "metadata": {
+        "description": "A friendly name for Active Directory Admin Login Account."
+      }
+    },
+    "MB.Database.aadAdminLoginApplicationId": {
+      "type": "string",
+      "metadata": {
+        "description": "The application-id of the service which will connect."
+      }
+    },
+    "MB.Diagnostics.StorageAccount.name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the storage account."
+      }
+    },
+    "MB.Database.location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the location in which the resources should be deployed."
+      }
+    },
+    "MB.LogAnalytics.subscriptionId": {
+      "type": "string",
+      "defaultvalue": "d6276dfa-1b40-4c1f-8fd5-33cacc328217"
+    },
+    "MB.LogAnalytics.workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace name"
+      }
+    },
+    "MB.LogAnalytics.workSpaceResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group name of Log Analytics workspace."
+      }
+    },
+    "MB.KeyVault.keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Key Vault"
+      }
+    },
+    "MB.Database.tagValues": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Specific tags on Resource"
+      }
+    }
+  },
+  "variables": {
+    "MB.Diagnostics.StorageAccount.resourceName": "[io.NameWithoutHypen(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Diagnostics.StorageAccount.name'))]",
+    "MB.KeyVault.keyVaultName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.KeyVault.keyVaultName'))]",
+    "sqlServerResourceName": "[toLower(concat(parameters('MB.namePrefix'), '-', parameters('MB.environment'), '-', parameters('MB.Database.sqlServerName')))]",
+    "sqlTenantMessageDatabaseResourceName": "[toLower(concat(parameters('MB.namePrefix'), '-', parameters('MB.environment'), '-', parameters('MB.Database.sqlTenantMessageDatabaseName')))]",
+    "enableAds": "[not(empty(parameters('MB.Diagnostics.StorageAccount.name')))]",
+    "enableAadAdmin": "[not(or(empty(parameters('MB.Database.aadAdminLogin')), empty(parameters('MB.Database.aadAdminLoginApplicationId'))))]"
+  },
+  "functions": [
+    {
+      "namespace": "io",
+      "members": {
+        "Name": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), '-', parameters('environment'), '-', parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "NameWithoutHypen": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), parameters('environment'), parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "lockName": {
+          "parameters": [
+            {
+              "name": "resourceName",
+              "type": "string"
+            },
+            {
+              "name": "instanceCount",
+              "type": "int"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat('/Microsoft.Authorization/', parameters('resourceName'), padleft(parameters('instanceCount'), 2, '0'), '-lock'))]"
+          }
+        },
+        "workspace": {
+          "parameters": [
+            {
+              "name": "subscriptionId",
+              "type": "string"
+            },
+            {
+              "name": "workspaceName",
+              "type": "string"
+            },
+            {
+              "name": "workspaceResourceGroup",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[resourceId(parameters('subscriptionId'), parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          }
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "name": "[concat(variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[parameters('MB.Database.location')]",
+      "copy": {
+        "name": "Loop",
+        "count": "[parameters('MB.Database.instanceCount')]"
+      },
+      "apiVersion": "2014-04-01-preview",
+      "tags": "[union(resourceGroup().tags, parameters('MB.Database.tagValues'))]",
+      "properties": {
+        "administratorLogin": "[parameters('MB.Database.sqlAdminUsername')]",
+        "administratorLoginPassword": "[parameters('MB.Database.sqlAdminPassword')]",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "name": "[concat(variables('sqlTenantMessageDatabaseResourceName'), padleft(copyindex(1), 2, '0'))]",
+          "type": "databases",
+          "location": "[parameters('MB.Database.location')]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+          ],
+          "properties": {
+            "edition": "[parameters('MB.Database.edition')]",
+            "collation": "[parameters('MB.Database.collation')]",
+            "maxSizeBytes": "[parameters('MB.Database.maxSizeBytes')]",
+            "requestedServiceObjectiveName": "[parameters('MB.Database.requestedServiceObjectiveName')]"
+          },
+          "tags": "[union(resourceGroup().tags, parameters('MB.Database.tagValues'))]",
+          "resources": [
+            {
+              "type": "providers/locks",
+              "name": "[io.lockName(variables('sqlTenantMessageDatabaseResourceName'), copyindex(1))]",
+              "apiVersion": "2016-09-01",
+              "dependsOn": [
+                "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/databases/', variables('sqlTenantMessageDatabaseResourceName'), padleft(copyindex(1), 2, '0'))]"
+              ],
+              "properties": {
+                "level": "CannotDelete",
+                "notes": "Database should not be deleted"
+              }
+            }
+          ]
+        },
+        {
+          "type": "firewallrules",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+          ],
+          "location": "[parameters('MB.Database.location')]",
+          "name": "AllowAllWindowsAzureIps",
+          "properties": {
+            "endIpAddress": "0.0.0.0",
+            "startIpAddress": "0.0.0.0"
+          }
+        },
+        {
+          "condition": "[variables('enableAadAdmin')]",
+          "type": "administrators",
+          "name": "activeDirectory",
+          "apiVersion": "2014-04-01-preview",
+          "properties": {
+            "administratorType": "ActiveDirectory",
+            "login": "[parameters('MB.Database.aadAdminLogin')]",
+            "sid": "[if(variables('enableAadAdmin'), parameters('MB.Database.aadAdminLoginApplicationId'), '')]",
+            "tenantId": "[if(variables('enableAadAdmin'), subscription().tenantId, '')]"
+          },
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+          ]
+        },
+        {
+          "type": "databases/providers/diagnosticSettings",
+          "name": "[concat('master/microsoft.insights/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '-diag')]",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]",
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/databases/', variables('sqlTenantMessageDatabaseResourceName'), padleft(copyindex(1), 2, '0'))]"
+          ],
+          "apiVersion": "2017-05-01-preview",
+          "properties": {
+            "name": "[concat('master/microsoft.insights/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '-diag')]",
+            "workspaceId": "[io.workspace(parameters('MB.LogAnalytics.subscriptionId'), parameters('MB.LogAnalytics.workspaceName'), parameters('MB.LogAnalytics.workSpaceResourceGroupName'))]",
+            "logs": [
+              {
+                "category": "SQLSecurityAuditEvents",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ]
+          }
+        },
+        {
+          "apiVersion": "2017-03-01-preview",
+          "type": "auditingSettings",
+          "name": "DefaultAuditingSettings",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', concat(variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0')))]"
+          ],
+          "properties": {
+            "State": "Enabled",
+            "auditActionsAndGroups": null,
+            "isAzureMonitorTargetEnabled": true
+          }
+        },
+        {
+          "condition": "[variables('enableADS')]",
+          "apiVersion": "2017-03-01-preview",
+          "type": "Microsoft.Sql/servers/securityAlertPolicies",
+          "name": "[concat(variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/Default')]",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+          ],
+          "properties": {
+            "state": "Enabled",
+            "disabledAlerts": [],
+            "emailAddresses": [],
+            "emailAccountAdmins": true
+          }
+        },
+        {
+          "condition": "[variables('enableADS')]",
+          "apiVersion": "2018-06-01-preview",
+          "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+          "name": "[concat(variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/Default')]",
+          "properties": {
+            "storageContainerPath": "[if(variables('enableAds'), concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('MB.Diagnostics.StorageAccount.resourceName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, 'vulnerability-assessment'), '')]",
+            "storageAccountAccessKey": "[if(variables('enableAds'), listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('MB.Diagnostics.StorageAccount.resourceName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '')]",
+            "recurringScans": {
+              "isEnabled": true,
+              "emailSubscriptionAdmins": true,
+              "emails": []
+            }
+          },
+          "dependsOn": [
+            "[concat('Microsoft.Storage/storageAccounts/', variables('MB.Diagnostics.StorageAccount.resourceName'))]",
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]",
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/securityAlertPolicies/Default')]"
+          ]
+        },
+        {
+          "type": "providers/locks",
+          "name": "[io.lockName(variables('sqlServerResourceName'), copyindex(1))]",
+          "apiVersion": "2016-09-01",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+          ],
+          "properties": {
+            "level": "CannotDelete",
+            "notes": "SQL Database should not be deleted"
+          }
+        },
+        {
+          "type": "Microsoft.KeyVault/vaults/secrets",
+          "name": "[concat(variables('MB.KeyVault.keyVaultName'), '', '/ConnectionStrings--TenantContext')]",
+          "apiVersion": "2018-02-14",
+          "properties": {
+            "value": "[concat('Server=tcp:',reference(concat(variables('sqlServerResourceName'), '01')).fullyQualifiedDomainName,',1433;Database=',concat(variables('sqlTenantMessageDatabaseResourceName'), '01'),';Connection Timeout=30;')]"
+          },
+          "dependsOn": [
+            "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "MB.Database.SqlServerName": {
+      "type": "string",
+      "value": "[concat(concat(variables('sqlServerResourceName'), '01'))]"
+    },
+    "MB.Database.DbTenantMessageName": {
+      "type": "string",
+      "value": "[concat(concat(variables('sqlTenantMessageDatabaseResourceName'), '01'))]"
+    },
+    "MB.Database.DbTenantMessageSaConnectionString": {
+      "type": "string",
+      "value": "[concat('Server=tcp:',reference(concat(variables('sqlServerResourceName'), '01')).fullyQualifiedDomainName,',1433;Initial Catalog=',concat(variables('sqlTenantMessageDatabaseResourceName'), '01'),';Persist Security Info=False;User ID=',parameters('MB.Database.sqlAdminUsername'),';Password=',parameters('MB.Database.sqlAdminPassword'),';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]"
+    }
+  }
+}

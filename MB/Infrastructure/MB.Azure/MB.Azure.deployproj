@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>61a32086-085b-415e-ac5b-5ad1d832e47a</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PrepareForBuildDependsOn>
+    </PrepareForBuildDependsOn>
+  </PropertyGroup>
+  <Import Condition=" Exists('Deployment.targets') " Project="Deployment.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+  <!-- vertag<:>start tokens<:>maj.min -->
+  <Import Condition=" Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets') " Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets" />
+  <!-- vertag<:>end -->
+  <ItemGroup>
+    <None Include="ApplicationInsights\MB.ApplicationInsights.parameters.json" />
+    <None Include="ApplicationInsights\MB.ApplicationInsights.template.json" />
+    <None Include="AppService\Microservice\Message1\MB.Message1.AppService.parameters.json" />
+    <None Include="AppService\Microservice\Message1\MB.Message1.AppService.template.json" />
+    <None Include="AppService\Microservice\Message2\MB.Message2.AppService.parameters.json" />
+    <None Include="AppService\Microservice\Message2\MB.Message2.AppService.template.json" />
+    <None Include="AppService\Microservice\MB.Microservices.AppServicePlan.parameters.json" />
+    <None Include="AppService\Microservice\MB.Microservices.AppServicePlan.template.json" />
+    <None Include="arm-template-merge-command.bat" />
+    <None Include="Database\MB.Database.parameters.json" />
+    <None Include="Database\MB.Database.template.json" />
+    <None Include="Deployment.targets">
+      <Visible>False</Visible>
+    </None>
+    <Content Include="Deploy-AzureResourceGroup.ps1" />
+    <None Include="AppService\Gateway\MB.Api.AppService.template.json" />
+    <None Include="AppService\Gateway\MB.Api.AppService.parameters.json" />
+    <None Include="Execute-AzureSqlCmd.ps1" />
+    <None Include="KeyVault\MB.KeyVault.parameters.json" />
+    <None Include="KeyVault\MB.KeyVault.template.json" />
+    <Content Include="MB.parameters.json" />
+    <Content Include="MB.template.json" />
+    <None Include="ServiceBus\MB.ServiceBus.parameters.json" />
+    <None Include="ServiceBus\MB.ServiceBus.template.json" />
+    <None Include="StorageAccount\Blob\MB.Blob.StorageAccount.parameters.json" />
+    <None Include="StorageAccount\Blob\MB.Blob.StorageAccount.template.json" />
+    <None Include="StorageAccount\Diagnostics\MB.Diagnostics.StorageAccount.parameters.json" />
+    <None Include="StorageAccount\Diagnostics\MB.Diagnostics.StorageAccount.template.json" />
+  </ItemGroup>
+  <Target Name="GetReferenceAssemblyPaths" />
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(ProjectDir)/arm-template-merge-command.bat" />
+  </Target>
+</Project>

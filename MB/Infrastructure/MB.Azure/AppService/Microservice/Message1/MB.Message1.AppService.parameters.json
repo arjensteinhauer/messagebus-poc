@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MB.namePrefix": {
+      "value": "mb"
+    },
+    "MB.environment": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.sequenceNumber": {
+      "value": 1
+    },
+    "MB.Message1.AppService.appServiceName": {
+      "value": "message1"
+    },
+    "MB.MicroServices.AppService.hostingPlanName": {
+      "value": "microservices"
+    },
+    "MB.KeyVault.keyVaultName": {
+      "value": "mbpoc"
+    },
+    "MB.LogAnalytics.workspaceName": {
+      "value": "io-p-loganalytics"
+    },
+    "MB.LogAnalytics.workSpaceResourceGroupName": {
+      "value": "io-p-monitoring"
+    },
+    "MB.ApplicationInsights.applicationInsightsName": {
+      "value": "mbpoc"
+    }
+  }
+}

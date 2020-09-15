@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Access\Interface\MB.Access.Tenant.Interface.csproj" />
     <ProjectReference Include="..\..\..\Client\Interface\MB.Client.Gateway.Interface.csproj" />
     <ProjectReference Include="..\Interface\MB.Manager.Message2.Interface.csproj" />
   </ItemGroup>

@@ -443,6 +443,401 @@ export class Message2Client implements IMessage2Client {
     }
 }
 
+export interface IImageClient {
+    /**
+     * Search images call
+     * @param body Input for search images
+     * @return Response with images search result
+     */
+    search(body: SearchRequest): Observable<ImageSearchResponse>;
+    /**
+     * Get image details call
+     * @param body Input for get image details
+     * @return Response with image details
+     */
+    getDetails(body: GetImageDetailsRequest): Observable<GetImageDetailsResponse>;
+    /**
+     * Add new image call
+     * @param body Input for add new image
+     * @return Response of the add image request
+     */
+    add(body: AddImageRequest): Observable<AddImageResponse>;
+    /**
+     * Update image details
+     * @param body Input for update image details
+     * @return Response of the update image details request
+     */
+    updateDetails(body: UpdateImageDetailsRequest): Observable<UpdateImageDetailsResponse>;
+    /**
+     * Delete image
+     * @param body Input for delete image
+     * @return Response of the delete image request
+     */
+    delete(body: DeleteImageRequest): Observable<DeleteImageResponse>;
+    /**
+     * Process image
+     * @param body Input for process image
+     * @return Response of the process image request
+     */
+    process(body: ProcessImageRequest): Observable<ProcessImageResponse>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ImageClient implements IImageClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ? baseUrl : "";
+    }
+
+    /**
+     * Search images call
+     * @param body Input for search images
+     * @return Response with images search result
+     */
+    search(body: SearchRequest): Observable<ImageSearchResponse> {
+        let url_ = this.baseUrl + "/image/search";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSearch(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSearch(<any>response_);
+                } catch (e) {
+                    return <Observable<ImageSearchResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ImageSearchResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processSearch(response: HttpResponseBase): Observable<ImageSearchResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ImageSearchResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ImageSearchResponse>(<any>null);
+    }
+
+    /**
+     * Get image details call
+     * @param body Input for get image details
+     * @return Response with image details
+     */
+    getDetails(body: GetImageDetailsRequest): Observable<GetImageDetailsResponse> {
+        let url_ = this.baseUrl + "/image/getDetails";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetDetails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetDetails(<any>response_);
+                } catch (e) {
+                    return <Observable<GetImageDetailsResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<GetImageDetailsResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processGetDetails(response: HttpResponseBase): Observable<GetImageDetailsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetImageDetailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<GetImageDetailsResponse>(<any>null);
+    }
+
+    /**
+     * Add new image call
+     * @param body Input for add new image
+     * @return Response of the add image request
+     */
+    add(body: AddImageRequest): Observable<AddImageResponse> {
+        let url_ = this.baseUrl + "/image/add";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAdd(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAdd(<any>response_);
+                } catch (e) {
+                    return <Observable<AddImageResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<AddImageResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processAdd(response: HttpResponseBase): Observable<AddImageResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = AddImageResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<AddImageResponse>(<any>null);
+    }
+
+    /**
+     * Update image details
+     * @param body Input for update image details
+     * @return Response of the update image details request
+     */
+    updateDetails(body: UpdateImageDetailsRequest): Observable<UpdateImageDetailsResponse> {
+        let url_ = this.baseUrl + "/image/updateDetails";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateDetails(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateDetails(<any>response_);
+                } catch (e) {
+                    return <Observable<UpdateImageDetailsResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<UpdateImageDetailsResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processUpdateDetails(response: HttpResponseBase): Observable<UpdateImageDetailsResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UpdateImageDetailsResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<UpdateImageDetailsResponse>(<any>null);
+    }
+
+    /**
+     * Delete image
+     * @param body Input for delete image
+     * @return Response of the delete image request
+     */
+    delete(body: DeleteImageRequest): Observable<DeleteImageResponse> {
+        let url_ = this.baseUrl + "/image/delete";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(<any>response_);
+                } catch (e) {
+                    return <Observable<DeleteImageResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<DeleteImageResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<DeleteImageResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DeleteImageResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<DeleteImageResponse>(<any>null);
+    }
+
+    /**
+     * Process image
+     * @param body Input for process image
+     * @return Response of the process image request
+     */
+    process(body: ProcessImageRequest): Observable<ProcessImageResponse> {
+        let url_ = this.baseUrl + "/image/process";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processProcess(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processProcess(<any>response_);
+                } catch (e) {
+                    return <Observable<ProcessImageResponse>><any>_observableThrow(e);
+                }
+            } else
+                return <Observable<ProcessImageResponse>><any>_observableThrow(response_);
+        }));
+    }
+
+    protected processProcess(response: HttpResponseBase): Observable<ProcessImageResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (<any>response).error instanceof Blob ? (<any>response).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ProcessImageResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<ProcessImageResponse>(<any>null);
+    }
+}
+
 export class IAmAliveRequest implements IIAmAliveRequest {
     input?: string;
 
@@ -621,6 +1016,881 @@ export class TriggerPublishSubscribeRequest implements ITriggerPublishSubscribeR
 
 export interface ITriggerPublishSubscribeRequest {
     name: string;
+}
+
+export class SearchRequest implements ISearchRequest {
+    search?: string | undefined;
+    top?: number | undefined;
+    skip?: number | undefined;
+    orderBy?: string | undefined;
+    sortOrder?: string | undefined;
+    filters?: { [key: string]: SearchFilterItem; } | undefined;
+    oDataFilter?: string;
+    language?: SearchLanguage;
+
+    constructor(data?: ISearchRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.search = _data["search"];
+            this.top = _data["top"];
+            this.skip = _data["skip"];
+            this.orderBy = _data["orderBy"];
+            this.sortOrder = _data["sortOrder"];
+            if (_data["filters"]) {
+                this.filters = {} as any;
+                for (let key in _data["filters"]) {
+                    if (_data["filters"].hasOwnProperty(key))
+                        this.filters![key] = _data["filters"][key] ? SearchFilterItem.fromJS(_data["filters"][key]) : new SearchFilterItem();
+                }
+            }
+            this.oDataFilter = _data["oDataFilter"];
+            this.language = _data["language"];
+        }
+    }
+
+    static fromJS(data: any): SearchRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SearchRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["search"] = this.search;
+        data["top"] = this.top;
+        data["skip"] = this.skip;
+        data["orderBy"] = this.orderBy;
+        data["sortOrder"] = this.sortOrder;
+        if (this.filters) {
+            data["filters"] = {};
+            for (let key in this.filters) {
+                if (this.filters.hasOwnProperty(key))
+                    data["filters"][key] = this.filters[key] ? this.filters[key].toJSON() : <any>undefined;
+            }
+        }
+        data["oDataFilter"] = this.oDataFilter;
+        data["language"] = this.language;
+        return data; 
+    }
+}
+
+export interface ISearchRequest {
+    search?: string | undefined;
+    top?: number | undefined;
+    skip?: number | undefined;
+    orderBy?: string | undefined;
+    sortOrder?: string | undefined;
+    filters?: { [key: string]: SearchFilterItem; } | undefined;
+    oDataFilter?: string;
+    language?: SearchLanguage;
+}
+
+export class SearchFilterItem implements ISearchFilterItem {
+    value?: string | undefined;
+    valueType?: string | undefined;
+
+    constructor(data?: ISearchFilterItem) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.value = _data["value"];
+            this.valueType = _data["valueType"];
+        }
+    }
+
+    static fromJS(data: any): SearchFilterItem {
+        data = typeof data === 'object' ? data : {};
+        let result = new SearchFilterItem();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        data["valueType"] = this.valueType;
+        return data; 
+    }
+}
+
+export interface ISearchFilterItem {
+    value?: string | undefined;
+    valueType?: string | undefined;
+}
+
+export enum SearchLanguage {
+    Nl = "nl",
+    En = "en",
+    De = "de",
+}
+
+export class ImageSearchResponse implements IImageSearchResponse {
+    totalResultCount?: number;
+    searchLanguage?: SearchLanguage;
+    searchResult?: Image[] | undefined;
+
+    constructor(data?: IImageSearchResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalResultCount = _data["totalResultCount"];
+            this.searchLanguage = _data["searchLanguage"];
+            if (Array.isArray(_data["searchResult"])) {
+                this.searchResult = [] as any;
+                for (let item of _data["searchResult"])
+                    this.searchResult!.push(Image.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ImageSearchResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImageSearchResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalResultCount"] = this.totalResultCount;
+        data["searchLanguage"] = this.searchLanguage;
+        if (Array.isArray(this.searchResult)) {
+            data["searchResult"] = [];
+            for (let item of this.searchResult)
+                data["searchResult"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IImageSearchResponse {
+    totalResultCount?: number;
+    searchLanguage?: SearchLanguage;
+    searchResult?: Image[] | undefined;
+}
+
+export class Image implements IImage {
+    imageId?: string;
+    partId?: string | undefined;
+    orderId?: string | undefined;
+    favorites?: string[] | undefined;
+    tags?: string[] | undefined;
+    urls?: ImageUrl[] | undefined;
+
+    constructor(data?: IImage) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageId = _data["imageId"];
+            this.partId = _data["partId"];
+            this.orderId = _data["orderId"];
+            if (Array.isArray(_data["favorites"])) {
+                this.favorites = [] as any;
+                for (let item of _data["favorites"])
+                    this.favorites!.push(item);
+            }
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags!.push(item);
+            }
+            if (Array.isArray(_data["urls"])) {
+                this.urls = [] as any;
+                for (let item of _data["urls"])
+                    this.urls!.push(ImageUrl.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Image {
+        data = typeof data === 'object' ? data : {};
+        let result = new Image();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageId"] = this.imageId;
+        data["partId"] = this.partId;
+        data["orderId"] = this.orderId;
+        if (Array.isArray(this.favorites)) {
+            data["favorites"] = [];
+            for (let item of this.favorites)
+                data["favorites"].push(item);
+        }
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item);
+        }
+        if (Array.isArray(this.urls)) {
+            data["urls"] = [];
+            for (let item of this.urls)
+                data["urls"].push(item.toJSON());
+        }
+        return data; 
+    }
+}
+
+export interface IImage {
+    imageId?: string;
+    partId?: string | undefined;
+    orderId?: string | undefined;
+    favorites?: string[] | undefined;
+    tags?: string[] | undefined;
+    urls?: ImageUrl[] | undefined;
+}
+
+export class ImageUrl implements IImageUrl {
+    url?: string;
+    imageType?: ImageType;
+
+    constructor(data?: IImageUrl) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.url = _data["url"];
+            this.imageType = _data["imageType"];
+        }
+    }
+
+    static fromJS(data: any): ImageUrl {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImageUrl();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["url"] = this.url;
+        data["imageType"] = this.imageType;
+        return data; 
+    }
+}
+
+export interface IImageUrl {
+    url?: string;
+    imageType?: ImageType;
+}
+
+export enum ImageType {
+    Default = "default",
+    Thumbnail = "thumbnail",
+    Original = "original",
+}
+
+export class GetImageDetailsRequest implements IGetImageDetailsRequest {
+    imageId!: string;
+
+    constructor(data?: IGetImageDetailsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageId = _data["imageId"];
+        }
+    }
+
+    static fromJS(data: any): GetImageDetailsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetImageDetailsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageId"] = this.imageId;
+        return data; 
+    }
+}
+
+export interface IGetImageDetailsRequest {
+    imageId: string;
+}
+
+export class GetImageDetailsResponse implements IGetImageDetailsResponse {
+    imageDetails?: Image;
+
+    constructor(data?: IGetImageDetailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageDetails = _data["imageDetails"] ? Image.fromJS(_data["imageDetails"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetImageDetailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetImageDetailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageDetails"] = this.imageDetails ? this.imageDetails.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IGetImageDetailsResponse {
+    imageDetails?: Image;
+}
+
+export class AddImageRequest implements IAddImageRequest {
+    imageContent?: string;
+    imageDetails?: Image;
+
+    constructor(data?: IAddImageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageContent = _data["imageContent"];
+            this.imageDetails = _data["imageDetails"] ? Image.fromJS(_data["imageDetails"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AddImageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddImageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageContent"] = this.imageContent;
+        data["imageDetails"] = this.imageDetails ? this.imageDetails.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IAddImageRequest {
+    imageContent?: string;
+    imageDetails?: Image;
+}
+
+export class AddImageResponse implements IAddImageResponse {
+    imageDetails?: Image;
+
+    constructor(data?: IAddImageResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageDetails = _data["imageDetails"] ? Image.fromJS(_data["imageDetails"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): AddImageResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddImageResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageDetails"] = this.imageDetails ? this.imageDetails.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IAddImageResponse {
+    imageDetails?: Image;
+}
+
+export class UpdateImageDetailsRequest implements IUpdateImageDetailsRequest {
+    imageDetails?: Image;
+
+    constructor(data?: IUpdateImageDetailsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageDetails = _data["imageDetails"] ? Image.fromJS(_data["imageDetails"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): UpdateImageDetailsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateImageDetailsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageDetails"] = this.imageDetails ? this.imageDetails.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IUpdateImageDetailsRequest {
+    imageDetails?: Image;
+}
+
+export class UpdateImageDetailsResponse implements IUpdateImageDetailsResponse {
+
+    constructor(data?: IUpdateImageDetailsResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): UpdateImageDetailsResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateImageDetailsResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IUpdateImageDetailsResponse {
+}
+
+export class DeleteImageRequest implements IDeleteImageRequest {
+    imageId!: string;
+
+    constructor(data?: IDeleteImageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageId = _data["imageId"];
+        }
+    }
+
+    static fromJS(data: any): DeleteImageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteImageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageId"] = this.imageId;
+        return data; 
+    }
+}
+
+export interface IDeleteImageRequest {
+    imageId: string;
+}
+
+export class DeleteImageResponse implements IDeleteImageResponse {
+
+    constructor(data?: IDeleteImageResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): DeleteImageResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new DeleteImageResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data; 
+    }
+}
+
+export interface IDeleteImageResponse {
+}
+
+export class ProcessImageRequest implements IProcessImageRequest {
+    imageContent!: string;
+    processDetails!: ImageProcessDetailsSaveOnly;
+
+    constructor(data?: IProcessImageRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.processDetails = new ImageProcessDetailsSaveOnly();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageContent = _data["imageContent"];
+            this.processDetails = _data["processDetails"] ? ImageProcessDetailsSaveOnly.fromJS(_data["processDetails"]) : new ImageProcessDetailsSaveOnly();
+        }
+    }
+
+    static fromJS(data: any): ProcessImageRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProcessImageRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageContent"] = this.imageContent;
+        data["processDetails"] = this.processDetails ? this.processDetails.toJSON() : <any>undefined;
+        return data; 
+    }
+}
+
+export interface IProcessImageRequest {
+    imageContent: string;
+    processDetails: ImageProcessDetailsSaveOnly;
+}
+
+export class ImageProcessDetails implements IImageProcessDetails {
+    storeAfterProcessing?: boolean;
+
+    protected _discriminator: string;
+
+    constructor(data?: IImageProcessDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.storeAfterProcessing = true;
+        }
+        this._discriminator = "ImageProcessDetails";
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.storeAfterProcessing = _data["storeAfterProcessing"] !== undefined ? _data["storeAfterProcessing"] : true;
+        }
+    }
+
+    static fromJS(data: any): ImageProcessDetails {
+        data = typeof data === 'object' ? data : {};
+        if (data["processingType"] === "saveOnly") {
+            let result = new ImageProcessDetailsSaveOnly();
+            result.init(data);
+            return result;
+        }
+        if (data["processingType"] === "crop") {
+            let result = new ImageProcessDetailsCrop();
+            result.init(data);
+            return result;
+        }
+        if (data["processingType"] === "resize") {
+            let result = new ImageProcessDetailsResize();
+            result.init(data);
+            return result;
+        }
+        if (data["processingType"] === "rotate") {
+            let result = new ImageProcessDetailsRotate();
+            result.init(data);
+            return result;
+        }
+        let result = new ImageProcessDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["processingType"] = this._discriminator; 
+        data["storeAfterProcessing"] = this.storeAfterProcessing;
+        return data; 
+    }
+}
+
+export interface IImageProcessDetails {
+    storeAfterProcessing?: boolean;
+}
+
+export class ImageProcessDetailsSaveOnly extends ImageProcessDetails implements IImageProcessDetailsSaveOnly {
+
+    constructor(data?: IImageProcessDetailsSaveOnly) {
+        super(data);
+        this._discriminator = "saveOnly";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+    }
+
+    static fromJS(data: any): ImageProcessDetailsSaveOnly {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImageProcessDetailsSaveOnly();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        super.toJSON(data);
+        return data; 
+    }
+}
+
+export interface IImageProcessDetailsSaveOnly extends IImageProcessDetails {
+}
+
+export class ImageProcessDetailsCrop extends ImageProcessDetails implements IImageProcessDetailsCrop {
+    x!: number;
+    y!: number;
+    width!: number;
+    height!: number;
+
+    constructor(data?: IImageProcessDetailsCrop) {
+        super(data);
+        this._discriminator = "crop";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.x = _data["x"];
+            this.y = _data["y"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+        }
+    }
+
+    static fromJS(data: any): ImageProcessDetailsCrop {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImageProcessDetailsCrop();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["x"] = this.x;
+        data["y"] = this.y;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        super.toJSON(data);
+        return data; 
+    }
+}
+
+export interface IImageProcessDetailsCrop extends IImageProcessDetails {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export class ImageProcessDetailsResize extends ImageProcessDetails implements IImageProcessDetailsResize {
+    width!: number;
+    height!: number;
+
+    constructor(data?: IImageProcessDetailsResize) {
+        super(data);
+        this._discriminator = "resize";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.width = _data["width"];
+            this.height = _data["height"];
+        }
+    }
+
+    static fromJS(data: any): ImageProcessDetailsResize {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImageProcessDetailsResize();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["width"] = this.width;
+        data["height"] = this.height;
+        super.toJSON(data);
+        return data; 
+    }
+}
+
+export interface IImageProcessDetailsResize extends IImageProcessDetails {
+    width: number;
+    height: number;
+}
+
+export class ImageProcessDetailsRotate extends ImageProcessDetails implements IImageProcessDetailsRotate {
+    angle!: number;
+
+    constructor(data?: IImageProcessDetailsRotate) {
+        super(data);
+        this._discriminator = "rotate";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.angle = _data["angle"];
+        }
+    }
+
+    static fromJS(data: any): ImageProcessDetailsRotate {
+        data = typeof data === 'object' ? data : {};
+        let result = new ImageProcessDetailsRotate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["angle"] = this.angle;
+        super.toJSON(data);
+        return data; 
+    }
+}
+
+export interface IImageProcessDetailsRotate extends IImageProcessDetails {
+    angle: number;
+}
+
+export class ProcessImageResponse implements IProcessImageResponse {
+    imageContent?: string;
+
+    constructor(data?: IProcessImageResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageContent = _data["imageContent"];
+        }
+    }
+
+    static fromJS(data: any): ProcessImageResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProcessImageResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageContent"] = this.imageContent;
+        return data; 
+    }
+}
+
+export interface IProcessImageResponse {
+    imageContent?: string;
+}
+
+export enum ImageProcessingType {
+    SaveOnly = "saveOnly",
+    Crop = "crop",
+    Resize = "resize",
+    Rotate = "rotate",
 }
 
 export class ApiException extends Error {

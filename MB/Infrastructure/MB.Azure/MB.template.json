@@ -1,0 +1,1778 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "MB.namePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Prefix for the resource names."
+            }
+        },
+        "MB.environment": {
+            "type": "string",
+            "metadata": {
+                "description": "Environment of the resource. E.g. d, t, a or p."
+            }
+        },
+        "MB.sequenceNumber": {
+            "type": "int",
+            "metadata": {
+                "description": "Sequence number for the resources."
+            }
+        },
+        "MB.ApplicationInsights.applicationInsightsName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "MB.ApplicationInsights.applicationInsightsDisplayName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "MB.ServiceBus.serviceBusNamespaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Service Bus namespace"
+            }
+        },
+        "MB.ServiceBus.serviceBusDisplayName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "MB.ServiceBus.serviceBusSku": {
+            "type": "string",
+            "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+            ],
+            "defaultValue": "Standard",
+            "metadata": {
+                "description": "The messaging tier for service Bus namespace"
+            }
+        },
+        "MB.MicroServices.AppService.hostingPlanName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "MB.MicroServices.AppService.skuName": {
+            "type": "string",
+            "allowedValues": [
+                "F1",
+                "D1",
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3",
+                "P1",
+                "P2",
+                "P3",
+                "P4"
+            ],
+            "metadata": {
+                "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+            }
+        },
+        "MB.MicroServices.AppService.skuCapacity": {
+            "type": "int",
+            "defaultValue": 1,
+            "minValue": 1,
+            "metadata": {
+                "description": "Describes plan's instance count"
+            }
+        },
+        "MB.Blob.StorageAccount.name": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the storage account."
+            }
+        },
+        "MB.Blob.StorageAccount.storageSku": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS"
+            ]
+        },
+        "MB.Blob.StorageAccount.location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Specifies the location in which the resources should be deployed."
+            }
+        },
+        "MB.Blob.StorageAccount.tagValues": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "Specific tags on Resource"
+            }
+        },
+        "MB.Diagnostics.StorageAccount.name": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the storage account."
+            }
+        },
+        "MB.Diagnostics.StorageAccount.storageSku": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS"
+            ]
+        },
+        "MB.Diagnostics.StorageAccount.location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Specifies the location in which the resources should be deployed."
+            }
+        },
+        "MB.Diagnostics.StorageAccount.tagValues": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "Specific tags on Resource"
+            }
+        },
+        "MB.Api.AppService.appServiceName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "MB.Api.AppService.hostingPlanName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "MB.Api.AppService.skuName": {
+            "type": "string",
+            "allowedValues": [
+                "F1",
+                "D1",
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3",
+                "P1",
+                "P2",
+                "P3",
+                "P4"
+            ],
+            "metadata": {
+                "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+            }
+        },
+        "MB.Api.AppService.skuCapacity": {
+            "type": "int",
+            "defaultValue": 1,
+            "minValue": 1,
+            "metadata": {
+                "description": "Describes plan's instance count"
+            }
+        },
+        "MB.KeyVault.keyVaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Key Vault"
+            }
+        },
+        "MB.LogAnalytics.subscriptionId": {
+            "type": "string",
+            "defaultvalue": "d6276dfa-1b40-4c1f-8fd5-33cacc328217"
+        },
+        "MB.LogAnalytics.workspaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Log Analytics workspace name"
+            }
+        },
+        "MB.LogAnalytics.workSpaceResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource group name of Log Analytics workspace."
+            }
+        },
+        "MB.Database.instanceCount": {
+            "type": "int",
+            "defaultValue": 1
+        },
+        "MB.Database.sqlServerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the SQL server."
+            }
+        },
+        "MB.Database.sqlTenantMessageDatabaseName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the TetantMessage SQL database."
+            }
+        },
+        "MB.Database.collation": {
+            "type": "string",
+            "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+            "metadata": {
+                "description": "The database collation for governing the proper use of characters."
+            }
+        },
+        "MB.Database.edition": {
+            "type": "string",
+            "defaultValue": "Basic",
+            "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+            ],
+            "metadata": {
+                "description": "The type of database to create."
+            }
+        },
+        "MB.Database.maxSizeBytes": {
+            "type": "string",
+            "defaultValue": "1073741824",
+            "metadata": {
+                "description": "The maximum size, in bytes, for the database."
+            }
+        },
+        "MB.Database.requestedServiceObjectiveName": {
+            "type": "string",
+            "defaultValue": "Basic",
+            "allowedValues": [
+                "Basic",
+                "S0",
+                "S1",
+                "S2",
+                "P1",
+                "P2",
+                "P3"
+            ],
+            "metadata": {
+                "description": "Describes the performance level for Edition."
+            }
+        },
+        "MB.Database.sqlAdminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the SQL server administrator."
+            }
+        },
+        "MB.Database.sqlAdminPassword": {
+            "type": "string",
+            "metadata": {
+                "description": "Password of the SQL server administrator."
+            }
+        },
+        "MB.Database.aadAdminLogin": {
+            "type": "string",
+            "defaultValue": "ADMIN",
+            "metadata": {
+                "description": "A friendly name for Active Directory Admin Login Account."
+            }
+        },
+        "MB.Database.aadAdminLoginApplicationId": {
+            "type": "string",
+            "metadata": {
+                "description": "The application-id of the service which will connect."
+            }
+        },
+        "MB.Database.location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Specifies the location in which the resources should be deployed."
+            }
+        },
+        "MB.Database.tagValues": {
+            "type": "object",
+            "defaultValue": {},
+            "metadata": {
+                "description": "Specific tags on Resource"
+            }
+        },
+        "MB.KeyVault.keyVaultDisplayName": {
+            "type": "string",
+            "metadata": {
+                "description": "Display name of the Key Vault"
+            }
+        },
+        "MB.Gateway.baseUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "The baseUrl for the call to gateway"
+            }
+        },
+        "MB.KeyVault.existsWithinTargetResourceGroup": {
+            "type": "bool",
+            "metadata": {
+                "description": "Specifies if the vault already exists in the targeted resource group (workaround for: https://github.com/Azure/azure-resource-manager-schemas/issues/521)"
+            }
+        },
+        "MB.KeyVault.keyVaultSku": {
+            "type": "string",
+            "defaultValue": "Standard",
+            "allowedValues": [
+                "Standard",
+                "Premium"
+            ],
+            "metadata": {
+                "description": "SKU for the vault"
+            }
+        },
+        "MB.KeyVault.enabledForDeployment": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Specifies if the vault is enabled for VM or Service Fabric deployment"
+            }
+        },
+        "MB.KeyVault.enabledForTemplateDeployment": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Specifies if the vault is enabled for ARM template deployment"
+            }
+        },
+        "MB.KeyVault.enableVaultForVolumeEncryption": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Specifies if the vault is enabled for volume encryption"
+            }
+        },
+        "MB.CommunicationAccess.Smtp.server": {
+            "type": "string",
+            "metadata": {
+                "description": "smtp server host"
+            }
+        },
+        "MB.CommunicationAccess.Smtp.port": {
+            "type": "int",
+            "metadata": {
+                "description": "smtp server port"
+            }
+        },
+        "MB.CommunicationAccess.Smtp.enableTls": {
+            "type": "bool",
+            "metadata": {
+                "description": "smtp server enable tls"
+            }
+        },
+        "MB.CommunicationAccess.Smtp.username": {
+            "type": "string",
+            "metadata": {
+                "description": "smtp server enable Username"
+            }
+        },
+        "MB.CommunicationAccess.Smtp.password": {
+            "type": "string",
+            "metadata": {
+                "description": "smtp server enable Password"
+            }
+        },
+        "MB.Message1.AppService.appServiceName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "MB.Message2.AppService.appServiceName": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "variables": {
+        "MB.ApplicationInsights.applicationInsightsName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.ApplicationInsights.applicationInsightsName'))]",
+        "MB.ServiceBus.defaultSASKeyName": "RootManageSharedAccessKey",
+        "MB.ServiceBus.serviceBusNamespaceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.ServiceBus.serviceBusNamespaceName'))]",
+        "MB.ServiceBus.defaultAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('MB.ServiceBus.serviceBusNamespaceName'), variables('MB.ServiceBus.defaultSASKeyName'))]",
+        "MB.ServiceBus.sbVersion": "2017-04-01",
+        "MB.MicroServices.AppService.planResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.MicroServices.AppService.hostingPlanName'))]",
+        "MB.Blob.StorageAccount.resourceName": "[io.NameWithoutHypen(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Blob.StorageAccount.name'))]",
+        "MB.Diagnostics.StorageAccount.resourceName": "[io.NameWithoutHypen(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Diagnostics.StorageAccount.name'))]",
+        "MB.Api.AppService.appResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Api.AppService.appServiceName'))]",
+        "MB.Api.AppService.planResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Api.AppService.hostingPlanName'))]",
+        "MB.KeyVault.keyVaultName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.KeyVault.keyVaultName'))]",
+        "sqlServerResourceName": "[toLower(concat(parameters('MB.namePrefix'), '-', parameters('MB.environment'), '-', parameters('MB.Database.sqlServerName')))]",
+        "sqlTenantMessageDatabaseResourceName": "[toLower(concat(parameters('MB.namePrefix'), '-', parameters('MB.environment'), '-', parameters('MB.Database.sqlTenantMessageDatabaseName')))]",
+        "enableAds": "[not(empty(parameters('MB.Diagnostics.StorageAccount.name')))]",
+        "enableAadAdmin": "[not(or(empty(parameters('MB.Database.aadAdminLogin')), empty(parameters('MB.Database.aadAdminLoginApplicationId'))))]",
+        "MB.ServiceBus.serviceBusDefaultSASKeyName": "RootManageSharedAccessKey",
+        "MB.ServiceBus.serviceBusIdentityResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('MB.ServiceBus.serviceBusNamespaceName'), variables('MB.ServiceBus.serviceBusDefaultSASKeyName'))]",
+        "MB.Message1.AppService.appResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Message1.AppService.appServiceName'))]",
+        "MB.Message2.AppService.appResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Message2.AppService.appServiceName'))]",
+        "MB.Api.AppService.identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('MB.Api.AppService.appResourceName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
+        "MB.Message1.AppService.identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('MB.Message1.AppService.appResourceName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
+        "MB.Message2.AppService.identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('MB.Message2.AppService.appResourceName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-05-01",
+            "name": "[variables('MB.ApplicationInsights.applicationInsightsName')]",
+            "type": "Microsoft.Insights/components",
+            "location": "[resourceGroup().location]",
+            "kind": "other",
+            "tags": {
+                "displayName": "[parameters('MB.ApplicationInsights.applicationInsightsDisplayName')]"
+            },
+            "properties": {
+                "Application_Type": "other",
+                "applicationId": "[variables('MB.ApplicationInsights.applicationInsightsName')]"
+            }
+        },
+        {
+            "apiVersion": "2017-04-01",
+            "name": "[variables('MB.ServiceBus.serviceBusNamespaceName')]",
+            "type": "Microsoft.ServiceBus/namespaces",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[parameters('MB.ServiceBus.serviceBusDisplayName')]"
+            },
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {}
+        },
+        {
+            "apiVersion": "2015-08-01",
+            "name": "[variables('MB.MicroServices.AppService.planResourceName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "HostingPlan"
+            },
+            "sku": {
+                "name": "[parameters('MB.MicroServices.AppService.skuName')]",
+                "capacity": "[parameters('MB.MicroServices.AppService.skuCapacity')]"
+            },
+            "properties": {
+                "name": "[variables('MB.MicroServices.AppService.planResourceName')]"
+            }
+        },
+        {
+            "type": "Microsoft.Insights/autoscalesettings",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(variables('MB.MicroServices.AppService.planResourceName'), '-', resourceGroup().name)]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]": "Resource",
+                "displayName": "AutoScaleSettings"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]"
+            ],
+            "properties": {
+                "profiles": [
+                    {
+                        "name": "Default",
+                        "capacity": {
+                            "minimum": 1,
+                            "maximum": 2,
+                            "default": 1
+                        },
+                        "rules": [
+                            {
+                                "metricTrigger": {
+                                    "metricName": "CpuPercentage",
+                                    "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]",
+                                    "timeGrain": "PT1M",
+                                    "statistic": "Average",
+                                    "timeWindow": "PT10M",
+                                    "timeAggregation": "Average",
+                                    "operator": "GreaterThan",
+                                    "threshold": 80
+                                },
+                                "scaleAction": {
+                                    "direction": "Increase",
+                                    "type": "ChangeCount",
+                                    "value": 1,
+                                    "cooldown": "PT10M"
+                                }
+                            },
+                            {
+                                "metricTrigger": {
+                                    "metricName": "CpuPercentage",
+                                    "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]",
+                                    "timeGrain": "PT1M",
+                                    "statistic": "Average",
+                                    "timeWindow": "PT1H",
+                                    "timeAggregation": "Average",
+                                    "operator": "LessThan",
+                                    "threshold": 60
+                                },
+                                "scaleAction": {
+                                    "direction": "Decrease",
+                                    "type": "ChangeCount",
+                                    "value": 1,
+                                    "cooldown": "PT1H"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "enabled": false,
+                "name": "[concat(variables('MB.MicroServices.AppService.planResourceName'), '-', resourceGroup().name)]",
+                "targetResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('MB.Blob.StorageAccount.resourceName')]",
+            "location": "[parameters('MB.Blob.StorageAccount.location')]",
+            "apiVersion": "2019-06-01",
+            "sku": {
+                "name": "[parameters('MB.Blob.StorageAccount.storageSku')]"
+            },
+            "dependsOn": [],
+            "tags": {
+                "displayName": "[concat(variables('MB.Blob.StorageAccount.resourceName'), '.Blob.StorageAccount')]"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            },
+            "resources": [
+                {
+                    "type": "providers/locks",
+                    "name": "[io.lockName(variables('MB.Blob.StorageAccount.resourceName'), 1)]",
+                    "apiVersion": "2016-09-01",
+                    "dependsOn": [
+                        "[concat('Microsoft.Storage/storageAccounts/', variables('MB.Blob.StorageAccount.resourceName'))]"
+                    ],
+                    "properties": {
+                        "level": "CannotDelete",
+                        "notes": "Storage account should not be deleted"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('MB.Blob.StorageAccount.resourceName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('MB.Blob.StorageAccount.resourceName'))]"
+            ],
+            "sku": {
+                "name": "[parameters('MB.Blob.StorageAccount.storageSku')]"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('MB.Blob.StorageAccount.resourceName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('MB.Blob.StorageAccount.resourceName'))]"
+            ],
+            "sku": {
+                "name": "[parameters('MB.Blob.StorageAccount.storageSku')]"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(variables('MB.Blob.StorageAccount.resourceName'), '/default/importexport')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('MB.Blob.StorageAccount.resourceName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('MB.Blob.StorageAccount.resourceName'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('MB.Diagnostics.StorageAccount.resourceName')]",
+            "location": "[parameters('MB.Diagnostics.StorageAccount.location')]",
+            "apiVersion": "2019-06-01",
+            "sku": {
+                "name": "[parameters('MB.Diagnostics.StorageAccount.storageSku')]"
+            },
+            "dependsOn": [],
+            "tags": {
+                "displayName": "[concat(variables('MB.Diagnostics.StorageAccount.resourceName'), '.Diagnostics.StorageAccount')]"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            },
+            "resources": [
+                {
+                    "type": "providers/locks",
+                    "name": "[io.lockName(variables('MB.Diagnostics.StorageAccount.resourceName'), 1)]",
+                    "apiVersion": "2016-09-01",
+                    "dependsOn": [
+                        "[concat('Microsoft.Storage/storageAccounts/', variables('MB.Diagnostics.StorageAccount.resourceName'))]"
+                    ],
+                    "properties": {
+                        "level": "CannotDelete",
+                        "notes": "Storage account should not be deleted"
+                    }
+                }
+            ]
+        },
+        {
+            "apiVersion": "2015-08-01",
+            "name": "[variables('MB.Api.AppService.planResourceName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "HostingPlan"
+            },
+            "sku": {
+                "name": "[parameters('MB.Api.AppService.skuName')]",
+                "capacity": "[parameters('MB.Api.AppService.skuCapacity')]"
+            },
+            "properties": {
+                "name": "[variables('MB.Api.AppService.planResourceName')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[variables('MB.Api.AppService.appResourceName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "app",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverFarms/', variables('MB.Api.AppService.planResourceName'))]",
+                "[resourceId('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))]"
+            ],
+            "tags": {
+                "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.Api.AppService.planResourceName'))]": "empty",
+                "displayName": "MessageBus PoC API gateway"
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Web/sites/providers/diagnosticSettings",
+                    "name": "[concat(variables('MB.Api.AppService.appResourceName'), '/Microsoft.Insights/logs')]",
+                    "apiVersion": "2017-05-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/sites/', variables('MB.Api.AppService.appResourceName'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[io.workspace(parameters('MB.LogAnalytics.subscriptionId'), parameters('MB.LogAnalytics.workspaceName'), parameters('MB.LogAnalytics.workSpaceResourceGroupName'))]",
+                        "logs": [
+                            {
+                                "category": "AppServiceConsoleLogs",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            },
+                            {
+                                "category": "AppServiceAppLogs",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            "properties": {
+                "name": "[variables('MB.Api.AppService.appResourceName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('MB.Api.AppService.planResourceName'))]",
+                "httpsOnly": true,
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(concat('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey]"
+                        },
+                        {
+                            "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                            "value": "[concat('InstrumentationKey=', reference(concat('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey)]"
+                        },
+                        {
+                            "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "DiagnosticServices_EXTENSION_VERSION",
+                            "value": "~3"
+                        },
+                        {
+                            "name": "XDT_MicrosoftApplicationInsights_Mode",
+                            "value": "default"
+                        },
+                        {
+                            "name": "KeyVaultName",
+                            "value": "[variables('MB.KeyVault.keyVaultName')]"
+                        }
+                    ],
+                    "metadata": [
+                        {
+                            "name": "CURRENT_STACK",
+                            "value": "dotnetcore"
+                        }
+                    ],
+                    "connectionStrings": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('MB.Api.AppService.appResourceName'), '/web')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('MB.Api.AppService.appResourceName'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "phpVersion": "5.6",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "[concat('$', variables('MB.Api.AppService.appResourceName'))]",
+                "scmType": "None",
+                "use32BitWorkerProcess": false,
+                "webSocketsEnabled": true,
+                "alwaysOn": true,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "reservedInstanceCount": 0
+            }
+        },
+        {
+            "type": "Microsoft.Insights/autoscalesettings",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(variables('MB.Api.AppService.planResourceName'), '-', resourceGroup().name)]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.Api.AppService.planResourceName'))]": "Resource",
+                "displayName": "AutoScaleSettings"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms/', variables('MB.Api.AppService.planResourceName'))]"
+            ],
+            "properties": {
+                "profiles": [
+                    {
+                        "name": "Default",
+                        "capacity": {
+                            "minimum": 1,
+                            "maximum": 2,
+                            "default": 1
+                        },
+                        "rules": [
+                            {
+                                "metricTrigger": {
+                                    "metricName": "CpuPercentage",
+                                    "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.Api.AppService.planResourceName'))]",
+                                    "timeGrain": "PT1M",
+                                    "statistic": "Average",
+                                    "timeWindow": "PT10M",
+                                    "timeAggregation": "Average",
+                                    "operator": "GreaterThan",
+                                    "threshold": 80
+                                },
+                                "scaleAction": {
+                                    "direction": "Increase",
+                                    "type": "ChangeCount",
+                                    "value": 1,
+                                    "cooldown": "PT10M"
+                                }
+                            },
+                            {
+                                "metricTrigger": {
+                                    "metricName": "CpuPercentage",
+                                    "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.Api.AppService.planResourceName'))]",
+                                    "timeGrain": "PT1M",
+                                    "statistic": "Average",
+                                    "timeWindow": "PT1H",
+                                    "timeAggregation": "Average",
+                                    "operator": "LessThan",
+                                    "threshold": 60
+                                },
+                                "scaleAction": {
+                                    "direction": "Decrease",
+                                    "type": "ChangeCount",
+                                    "value": 1,
+                                    "cooldown": "PT1H"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "enabled": false,
+                "name": "[concat(variables('MB.Api.AppService.planResourceName'), '-', resourceGroup().name)]",
+                "targetResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.Api.AppService.planResourceName'))]"
+            }
+        },
+        {
+            "name": "[concat(variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]",
+            "type": "Microsoft.Sql/servers",
+            "location": "[parameters('MB.Database.location')]",
+            "copy": {
+                "name": "Loop",
+                "count": "[parameters('MB.Database.instanceCount')]"
+            },
+            "apiVersion": "2014-04-01-preview",
+            "tags": "[union(resourceGroup().tags, parameters('MB.Database.tagValues'))]",
+            "properties": {
+                "administratorLogin": "[parameters('MB.Database.sqlAdminUsername')]",
+                "administratorLoginPassword": "[parameters('MB.Database.sqlAdminPassword')]",
+                "version": "12.0"
+            },
+            "resources": [
+                {
+                    "name": "[concat(variables('sqlTenantMessageDatabaseResourceName'), padleft(copyindex(1), 2, '0'))]",
+                    "type": "databases",
+                    "location": "[parameters('MB.Database.location')]",
+                    "apiVersion": "2014-04-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+                    ],
+                    "properties": {
+                        "edition": "[parameters('MB.Database.edition')]",
+                        "collation": "[parameters('MB.Database.collation')]",
+                        "maxSizeBytes": "[parameters('MB.Database.maxSizeBytes')]",
+                        "requestedServiceObjectiveName": "[parameters('MB.Database.requestedServiceObjectiveName')]"
+                    },
+                    "tags": "[union(resourceGroup().tags, parameters('MB.Database.tagValues'))]",
+                    "resources": [
+                        {
+                            "type": "providers/locks",
+                            "name": "[io.lockName(variables('sqlTenantMessageDatabaseResourceName'), copyindex(1))]",
+                            "apiVersion": "2016-09-01",
+                            "dependsOn": [
+                                "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/databases/', variables('sqlTenantMessageDatabaseResourceName'), padleft(copyindex(1), 2, '0'))]"
+                            ],
+                            "properties": {
+                                "level": "CannotDelete",
+                                "notes": "Database should not be deleted"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "firewallrules",
+                    "apiVersion": "2014-04-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+                    ],
+                    "location": "[parameters('MB.Database.location')]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "endIpAddress": "0.0.0.0",
+                        "startIpAddress": "0.0.0.0"
+                    }
+                },
+                {
+                    "condition": "[variables('enableAadAdmin')]",
+                    "type": "administrators",
+                    "name": "activeDirectory",
+                    "apiVersion": "2014-04-01-preview",
+                    "properties": {
+                        "administratorType": "ActiveDirectory",
+                        "login": "[parameters('MB.Database.aadAdminLogin')]",
+                        "sid": "[if(variables('enableAadAdmin'), parameters('MB.Database.aadAdminLoginApplicationId'), '')]",
+                        "tenantId": "[if(variables('enableAadAdmin'), subscription().tenantId, '')]"
+                    },
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+                    ]
+                },
+                {
+                    "type": "databases/providers/diagnosticSettings",
+                    "name": "[concat('master/microsoft.insights/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '-diag')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]",
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/databases/', variables('sqlTenantMessageDatabaseResourceName'), padleft(copyindex(1), 2, '0'))]"
+                    ],
+                    "apiVersion": "2017-05-01-preview",
+                    "properties": {
+                        "name": "[concat('master/microsoft.insights/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '-diag')]",
+                        "workspaceId": "[io.workspace(parameters('MB.LogAnalytics.subscriptionId'), parameters('MB.LogAnalytics.workspaceName'), parameters('MB.LogAnalytics.workSpaceResourceGroupName'))]",
+                        "logs": [
+                            {
+                                "category": "SQLSecurityAuditEvents",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "apiVersion": "2017-03-01-preview",
+                    "type": "auditingSettings",
+                    "name": "DefaultAuditingSettings",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', concat(variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0')))]"
+                    ],
+                    "properties": {
+                        "State": "Enabled",
+                        "auditActionsAndGroups": null,
+                        "isAzureMonitorTargetEnabled": true
+                    }
+                },
+                {
+                    "condition": "[variables('enableADS')]",
+                    "apiVersion": "2017-03-01-preview",
+                    "type": "Microsoft.Sql/servers/securityAlertPolicies",
+                    "name": "[concat(variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/Default')]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+                    ],
+                    "properties": {
+                        "state": "Enabled",
+                        "disabledAlerts": [],
+                        "emailAddresses": [],
+                        "emailAccountAdmins": true
+                    }
+                },
+                {
+                    "condition": "[variables('enableADS')]",
+                    "apiVersion": "2018-06-01-preview",
+                    "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+                    "name": "[concat(variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/Default')]",
+                    "properties": {
+                        "storageContainerPath": "[if(variables('enableAds'), concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('MB.Diagnostics.StorageAccount.resourceName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob, 'vulnerability-assessment'), '')]",
+                        "storageAccountAccessKey": "[if(variables('enableAds'), listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('MB.Diagnostics.StorageAccount.resourceName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, '')]",
+                        "recurringScans": {
+                            "isEnabled": true,
+                            "emailSubscriptionAdmins": true,
+                            "emails": []
+                        }
+                    },
+                    "dependsOn": [
+                        "[concat('Microsoft.Storage/storageAccounts/', variables('MB.Diagnostics.StorageAccount.resourceName'))]",
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]",
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'), '/securityAlertPolicies/Default')]"
+                    ]
+                },
+                {
+                    "type": "providers/locks",
+                    "name": "[io.lockName(variables('sqlServerResourceName'), copyindex(1))]",
+                    "apiVersion": "2016-09-01",
+                    "dependsOn": [
+                        "[concat('Microsoft.Sql/servers/', variables('sqlServerResourceName'), padleft(copyindex(1), 2, '0'))]"
+                    ],
+                    "properties": {
+                        "level": "CannotDelete",
+                        "notes": "SQL Database should not be deleted"
+                    }
+                },
+                {
+                    "type": "Microsoft.KeyVault/vaults/secrets",
+                    "name": "[concat(variables('MB.KeyVault.keyVaultName'), '', '/ConnectionStrings--TenantContext')]",
+                    "apiVersion": "2018-02-14",
+                    "properties": {
+                        "value": "[concat('Server=tcp:',reference(concat(variables('sqlServerResourceName'), '01')).fullyQualifiedDomainName,',1433;Database=',concat(variables('sqlTenantMessageDatabaseResourceName'), '01'),';Connection Timeout=30;')]"
+                    },
+                    "dependsOn": [
+                        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "[variables('MB.KeyVault.keyVaultName')]",
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2018-02-14",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[parameters('MB.KeyVault.keyVaultDisplayName')]"
+            },
+            "properties": {
+                "sku": {
+                    "name": "[parameters('MB.KeyVault.keyVaultSku')]",
+                    "family": "A"
+                },
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": "[if(parameters('MB.KeyVault.existsWithinTargetResourceGroup'), json('null'), json('[]'))]",
+                "createMode": "[if(parameters('MB.KeyVault.existsWithinTargetResourceGroup'), 'recover', 'create')]",
+                "MB.KeyVault.enabledForDeployment": "[parameters('MB.KeyVault.enabledForDeployment')]",
+                "MB.KeyVault.enabledForTemplateDeployment": "[parameters('MB.KeyVault.enabledForTemplateDeployment')]",
+                "enabledForVolumeEncryption": "[parameters('MB.KeyVault.enableVaultForVolumeEncryption')]"
+            },
+            "resources": [
+                {
+                    "type": "providers/locks",
+                    "name": "[io.lockName(variables('MB.KeyVault.keyVaultName'), 1)]",
+                    "apiVersion": "2017-04-01",
+                    "dependsOn": [
+                        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+                    ],
+                    "properties": {
+                        "level": "CannotDelete",
+                        "notes": "Key Vault should not be deleted"
+                    }
+                },
+                {
+                    "type": "providers/diagnosticSettings",
+                    "name": "Microsoft.Insights/service",
+                    "dependsOn": [
+                        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+                    ],
+                    "apiVersion": "2017-05-01-preview",
+                    "location": "westeurope",
+                    "properties": {
+                        "workspaceId": "[io.workspace(parameters('MB.LogAnalytics.subscriptionId'), parameters('MB.LogAnalytics.workspaceName'), parameters('MB.LogAnalytics.workSpaceResourceGroupName'))]",
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "enabled": false,
+                                    "days": 30
+                                }
+                            }
+                        ],
+                        "logs": [
+                            {
+                                "category": "AuditEvent",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 365,
+                                    "enabled": true
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "[concat(variables('MB.KeyVault.keyVaultName'), '/add')]",
+            "type": "Microsoft.KeyVault/vaults/accessPolicies",
+            "apiVersion": "2018-02-14",
+            "properties": {
+                "accessPolicies": [
+                    {
+                        "tenantId": "[reference(variables('MB.Api.AppService.identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+                        "objectId": "[reference(variables('MB.Api.AppService.identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+                        "permissions": {
+                            "secrets": [
+                                "get",
+                                "list"
+                            ]
+                        }
+                    },
+                    {
+                        "tenantId": "[reference(variables('MB.Message1.AppService.identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+                        "objectId": "[reference(variables('MB.Message1.AppService.identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+                        "permissions": {
+                            "secrets": [
+                                "get",
+                                "list"
+                            ]
+                        }
+                    },
+                    {
+                        "tenantId": "[reference(variables('MB.Message2.AppService.identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+                        "objectId": "[reference(variables('MB.Message2.AppService.identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+                        "permissions": {
+                            "secrets": [
+                                "get",
+                                "list"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('MB.Api.AppService.appResourceName'))]",
+                "[resourceId('Microsoft.Web/sites', variables('MB.Message1.AppService.appResourceName'))]",
+                "[resourceId('Microsoft.Web/sites', variables('MB.Message2.AppService.appResourceName'))]",
+                "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--Server')]",
+            "apiVersion": "2018-02-14",
+            "properties": {
+                "value": "[parameters('MB.CommunicationAccess.Smtp.server')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--Port')]",
+            "apiVersion": "2018-02-14",
+            "properties": {
+                "value": "[parameters('MB.CommunicationAccess.Smtp.port')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--EnableTls')]",
+            "apiVersion": "2018-02-14",
+            "properties": {
+                "value": "[parameters('MB.CommunicationAccess.Smtp.enableTls')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--Username')]",
+            "apiVersion": "2018-02-14",
+            "properties": {
+                "value": "[parameters('MB.CommunicationAccess.Smtp.username')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--Password')]",
+            "apiVersion": "2018-02-14",
+            "properties": {
+                "value": "[parameters('MB.CommunicationAccess.Smtp.password')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "name": "[concat(variables('MB.KeyVault.keyVaultName'), '', '/ApplicationInsightsInstrumentationKey')]",
+            "apiVersion": "2018-02-14",
+            "properties": {
+                "value": "[reference(concat('microsoft.insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]",
+                "[resourceId('microsoft.insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Gateway--BaseUrl')]",
+            "apiVersion": "2018-02-14",
+            "properties": {
+                "value": "[parameters('MB.Gateway.baseUrl')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "name": "[concat(variables('MB.KeyVault.keyVaultName'), '', '/ConnectionStrings--MessageBus')]",
+            "apiVersion": "2018-02-14",
+            "properties": {
+                "value": "[listkeys(variables('MB.ServiceBus.serviceBusIdentityResourceId'), variables('MB.ServiceBus.sbVersion')).primaryConnectionString]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]",
+                "[concat('Microsoft.ServiceBus/namespaces/', variables('MB.ServiceBus.serviceBusNamespaceName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[variables('MB.Message2.AppService.appResourceName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "app",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverFarms/', variables('MB.MicroServices.AppService.planResourceName'))]",
+                "[resourceId('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))]"
+            ],
+            "tags": {
+                "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]": "empty",
+                "displayName": "Message2 MicroService WebJob"
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Web/sites/providers/diagnosticSettings",
+                    "name": "[concat(variables('MB.Message2.AppService.appResourceName'), '/Microsoft.Insights/logs')]",
+                    "apiVersion": "2017-05-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/sites/', variables('MB.Message2.AppService.appResourceName'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[io.workspace(parameters('MB.LogAnalytics.subscriptionId'), parameters('MB.LogAnalytics.workspaceName'), parameters('MB.LogAnalytics.workSpaceResourceGroupName'))]",
+                        "logs": [
+                            {
+                                "category": "AppServiceConsoleLogs",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            },
+                            {
+                                "category": "AppServiceAppLogs",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            "properties": {
+                "name": "[variables('MB.Message2.AppService.appResourceName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('MB.MicroServices.AppService.planResourceName'))]",
+                "httpsOnly": true,
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(concat('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey]"
+                        },
+                        {
+                            "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                            "value": "[concat('InstrumentationKey=', reference(concat('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey)]"
+                        },
+                        {
+                            "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "XDT_MicrosoftApplicationInsights_Mode",
+                            "value": "default"
+                        },
+                        {
+                            "name": "KeyVaultName",
+                            "value": "[variables('MB.KeyVault.keyVaultName')]"
+                        }
+                    ],
+                    "metadata": [
+                        {
+                            "name": "CURRENT_STACK",
+                            "value": "dotnetcore"
+                        }
+                    ],
+                    "connectionStrings": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('MB.Message2.AppService.appResourceName'), '/web')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('MB.Message2.AppService.appResourceName'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "phpVersion": "5.6",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "[concat('$', variables('MB.Message2.AppService.appResourceName'))]",
+                "scmType": "None",
+                "use32BitWorkerProcess": false,
+                "webSocketsEnabled": false,
+                "alwaysOn": true,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "reservedInstanceCount": 0
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[variables('MB.Message1.AppService.appResourceName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "app",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverFarms/', variables('MB.MicroServices.AppService.planResourceName'))]",
+                "[resourceId('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))]"
+            ],
+            "tags": {
+                "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]": "empty",
+                "displayName": "Message1 MicroService WebJob"
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Web/sites/providers/diagnosticSettings",
+                    "name": "[concat(variables('MB.Message1.AppService.appResourceName'), '/Microsoft.Insights/logs')]",
+                    "apiVersion": "2017-05-01-preview",
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/sites/', variables('MB.Message1.AppService.appResourceName'))]"
+                    ],
+                    "properties": {
+                        "workspaceId": "[io.workspace(parameters('MB.LogAnalytics.subscriptionId'), parameters('MB.LogAnalytics.workspaceName'), parameters('MB.LogAnalytics.workSpaceResourceGroupName'))]",
+                        "logs": [
+                            {
+                                "category": "AppServiceConsoleLogs",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            },
+                            {
+                                "category": "AppServiceAppLogs",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                        ],
+                        "metrics": [
+                            {
+                                "category": "AllMetrics",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            "properties": {
+                "name": "[variables('MB.Message1.AppService.appResourceName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('MB.MicroServices.AppService.planResourceName'))]",
+                "httpsOnly": true,
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(concat('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey]"
+                        },
+                        {
+                            "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                            "value": "[concat('InstrumentationKey=', reference(concat('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey)]"
+                        },
+                        {
+                            "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "XDT_MicrosoftApplicationInsights_Mode",
+                            "value": "default"
+                        },
+                        {
+                            "name": "KeyVaultName",
+                            "value": "[variables('MB.KeyVault.keyVaultName')]"
+                        }
+                    ],
+                    "metadata": [
+                        {
+                            "name": "CURRENT_STACK",
+                            "value": "dotnetcore"
+                        }
+                    ],
+                    "connectionStrings": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('MB.Message1.AppService.appResourceName'), '/web')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('MB.Message1.AppService.appResourceName'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "phpVersion": "5.6",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "[concat('$', variables('MB.Message1.AppService.appResourceName'))]",
+                "scmType": "None",
+                "use32BitWorkerProcess": false,
+                "webSocketsEnabled": false,
+                "alwaysOn": true,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "reservedInstanceCount": 0
+            }
+        }
+    ],
+    "functions": [
+        {
+            "namespace": "io",
+            "members": {
+                "Name": {
+                    "parameters": [
+                        {
+                            "name": "namePrefix",
+                            "type": "string"
+                        },
+                        {
+                            "name": "environment",
+                            "type": "string"
+                        },
+                        {
+                            "name": "sequenceNumber",
+                            "type": "int"
+                        },
+                        {
+                            "name": "resourceName",
+                            "type": "string"
+                        }
+                    ],
+                    "output": {
+                        "type": "string",
+                        "value": "[toLower(concat(parameters('namePrefix'), '-', parameters('environment'), '-', parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+                    }
+                },
+                "NameWithoutHypen": {
+                    "parameters": [
+                        {
+                            "name": "namePrefix",
+                            "type": "string"
+                        },
+                        {
+                            "name": "environment",
+                            "type": "string"
+                        },
+                        {
+                            "name": "sequenceNumber",
+                            "type": "int"
+                        },
+                        {
+                            "name": "resourceName",
+                            "type": "string"
+                        }
+                    ],
+                    "output": {
+                        "type": "string",
+                        "value": "[toLower(concat(parameters('namePrefix'), parameters('environment'), parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+                    }
+                },
+                "lockName": {
+                    "parameters": [
+                        {
+                            "name": "resourceName",
+                            "type": "string"
+                        },
+                        {
+                            "name": "instanceCount",
+                            "type": "int"
+                        }
+                    ],
+                    "output": {
+                        "type": "string",
+                        "value": "[toLower(concat('/Microsoft.Authorization/', parameters('resourceName'), padleft(parameters('instanceCount'), 2, '0'), '-lock'))]"
+                    }
+                },
+                "workspace": {
+                    "parameters": [
+                        {
+                            "name": "subscriptionId",
+                            "type": "string"
+                        },
+                        {
+                            "name": "workspaceName",
+                            "type": "string"
+                        },
+                        {
+                            "name": "workspaceResourceGroup",
+                            "type": "string"
+                        }
+                    ],
+                    "output": {
+                        "type": "string",
+                        "value": "[resourceId(parameters('subscriptionId'), parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "MB.ApplicationInsights.InstrumentationKey": {
+            "type": "string",
+            "value": "[reference(concat('microsoft.insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey]"
+        },
+        "MB.ApplicationInsights.UniqueApplicationInsightsName": {
+            "type": "string",
+            "value": "[variables('MB.ApplicationInsights.applicationInsightsName')]"
+        },
+        "MB.ServiceBus.NamespaceDefaultConnectionString": {
+            "type": "string",
+            "value": "[listkeys(variables('MB.ServiceBus.defaultAuthRuleResourceId'), variables('MB.ServiceBus.sbVersion')).primaryConnectionString]"
+        },
+        "MB.ServiceBus.UniqueServiceBusNamespaceName": {
+            "type": "string",
+            "value": "[variables('MB.ServiceBus.serviceBusNamespaceName')]"
+        },
+        "MB.ServiceBus.DefaultSharedAccessPolicyPrimaryKey": {
+            "type": "string",
+            "value": "[listkeys(variables('MB.ServiceBus.defaultAuthRuleResourceId'), variables('MB.ServiceBus.sbVersion')).primaryKey]"
+        },
+        "MB.ServiceBus.DefaultSharedAccessPolicyKeyName": {
+            "type": "string",
+            "value": "[variables('MB.ServiceBus.sbVersion')]"
+        },
+        "MB.Api.AppService.PrincipalName": {
+            "type": "string",
+            "value": "[variables('MB.Api.AppService.appResourceName')]"
+        },
+        "MB.Database.SqlServerName": {
+            "type": "string",
+            "value": "[concat(concat(variables('sqlServerResourceName'), '01'))]"
+        },
+        "MB.Database.DbTenantMessageName": {
+            "type": "string",
+            "value": "[concat(concat(variables('sqlTenantMessageDatabaseResourceName'), '01'))]"
+        },
+        "MB.Database.DbTenantMessageSaConnectionString": {
+            "type": "string",
+            "value": "[concat('Server=tcp:',reference(concat(variables('sqlServerResourceName'), '01')).fullyQualifiedDomainName,',1433;Initial Catalog=',concat(variables('sqlTenantMessageDatabaseResourceName'), '01'),';Persist Security Info=False;User ID=',parameters('MB.Database.sqlAdminUsername'),';Password=',parameters('MB.Database.sqlAdminPassword'),';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]"
+        },
+        "MB.KeyVault.UniqueKeyVaultName": {
+            "type": "string",
+            "value": "[variables('MB.KeyVault.keyVaultName')]"
+        },
+        "MB.Message2.AppService.PrincipalName": {
+            "type": "string",
+            "value": "[variables('MB.Message2.AppService.appResourceName')]"
+        },
+        "MB.Message1.AppService.PrincipalName": {
+            "type": "string",
+            "value": "[variables('MB.Message1.AppService.appResourceName')]"
+        }
+    }
+}

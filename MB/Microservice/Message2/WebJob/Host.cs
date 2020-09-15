@@ -1,7 +1,12 @@
 ﻿using MassTransit;
+using MB.Access.Tenant.Database;
+using MB.Access.Tenant.Interface.V1;
+using MB.Access.Tenant.Service.V1;
 using MB.Manager.Message2.Interface.V1;
 using MB.Microservice.Message2.WebJob.Consumers.V1;
 using MB.Microservice.Message2.WebJob.Factory.V1;
+using MB.Utilities;
+using MB.Utilities.AccessTokenProvider;
 using MB.Utilities.Extensions;
 using MB.Utilities.MessageBus;
 using Microsoft.ApplicationInsights.DependencyCollector;
@@ -74,7 +79,6 @@ namespace MB.Microservice.Message2.WebJob
                 .AddEnvironmentVariables();
 
             // for local development add local development settings
-
             if (ConfigurationBuilderExtensions.IsLocalDevelopment())
             {
                 var configuration = configurationBuilder.Build();
@@ -105,7 +109,15 @@ namespace MB.Microservice.Message2.WebJob
                 });
             }
 
-            // notification manager service
+            // utility services
+            services.AddSingleton<IAccessTokenProvider>((provider) => ConfigurationBuilderExtensions.IsLocalDevelopment() ? null : new AccessTokenProvider());
+
+            // tenant access service
+            services.AddDbContext<TenantContext>();
+            services.AddScoped<ITenantContextFactory<TenantContext>, TenantContextFactory>();
+            services.AddScoped<ITenantAccess, TenantAccess>();
+
+            // Message2 manager service
             services.AddScoped<IMessage2ManagerFactory, Message2ManagerFactory>();
             services.AddScoped<IMessage2ManagerEvents, Message2ManagerEventsPublisher>();
 

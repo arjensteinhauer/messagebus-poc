@@ -20,7 +20,7 @@ jobs:
 
   - task: NuGetCommand@2
     inputs:
-      restoreSolution: "API/**/*.sln"
+      restoreSolution: "**/*.sln"
     displayName: "Restoring NuGet Packages"
 
   - powershell: 'Move-Item -Path "Directory.Build.props.tokens" -Destination "Directory.Build.props" -Force'
@@ -40,52 +40,46 @@ jobs:
   - task: DotNetCoreCLI@2
     inputs:
       command: "build"
-      projects: "API/**/*.csproj"
+      projects: "**/*.csproj"
       arguments: "--configuration $(BuildConfiguration)"
-    displayName: "Build API Solution"
-
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: test
-      projects: "API/Test/Unit/**/*.csproj"
-      arguments: '--configuration $(BuildConfiguration) --collect "Code coverage" --settings "API\CodeCoverage.runsettings"'
-    displayName: "Testing API"
+    displayName: "Build Solution"
 
   - template: steps/package-api-as-appservice.yml
     parameters:
       buildConfiguration: "$(BuildConfiguration)"
       outputPath: '$(Build.ArtifactStagingDirectory)\client'
       packageName: "Gateway"
-      packagePath: 'API\MB\Component\Client\Gateway'
-      pathToProject: 'API\MB\Component\Client\Gateway\MB.Client.Gateway.Service.csproj'
+      packagePath: 'MB\Component\Client\Gateway'
+      pathToProject: 'MB\Component\Client\Gateway\MB.Client.Gateway.Service.csproj'
       applicationName: "MB.Client.Gateway"
 
   - template: steps/package-microservice-as-continuous-webjob.yml
     parameters:
       buildConfiguration: "$(BuildConfiguration)"
       outputPath: '$(Build.ArtifactStagingDirectory)\microservice'
-      packageName: "Membership"
-      packagePath: 'API\MB\Microservice\Membership'
-      pathToProject: 'API\MB\Microservice\Membership\WebJob\MB.Microservice.Membership.WebJob.csproj'
-      applicationName: "MB.Microservice.Membership"
+      packageName: "Message1"
+      packagePath: 'MB\Microservice\Message1'
+      pathToProject: 'MB\Microservice\Message1\WebJob\MB.Microservice.Message1.WebJob.csproj'
+      applicationName: "MB.Microservice.Message1"
 
   - template: steps/package-microservice-as-continuous-webjob.yml
     parameters:
       buildConfiguration: "$(BuildConfiguration)"
       outputPath: '$(Build.ArtifactStagingDirectory)\microservice'
-      packageName: "Notification"
-      packagePath: 'API\MB\Microservice\Notification'
-      pathToProject: 'API\MB\Microservice\Notification\WebJob\MB.Microservice.Notification.WebJob.csproj'
-      applicationName: "MB.Microservice.Notification"
+      packageName: "Message2"
+      packagePath: 'MB\Microservice\Message2'
+      pathToProject: 'MB\Microservice\Message2\WebJob\MB.Microservice.Message2.WebJob.csproj'
+      applicationName: "MB.Microservice.Message2"
 
   - template: steps/merge-arm-templates.yml
     parameters:
-      workingDirectory: API/MB/Infrastructure/MB.Azure
+      workingDirectory: MB/Infrastructure/MB.Azure
 
   - task: CopyFiles@2
     displayName: "Copy MB.Azure infrastructure files to infrastructure artifact"
     inputs:
-      SourceFolder: "API/MB/Infrastructure/MB.Azure"
+      SourceFolder: "
+      MB/Infrastructure/MB.Azure"
       Contents: |
         MB.template.json
         MB.parameters.json
@@ -102,184 +96,20 @@ jobs:
       archiveFile: "$(Build.ArtifactStagingDirectory)/infrastructure.zip"
       replaceExistingArchive: true
 
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: "publish"
-      publishWebProjects: false
-      arguments: "--configuration $(BuildConfiguration)"
-      projects: "API/MB/**/MB.Client.RegistrationDataTool.ConsoleApp.csproj"
-      zipAfterPublish: false
-      modifyOutputPath: false
-    displayName: "Building the registration data tool artifact"
-
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: "$(Build.ArtifactStagingDirectory)/client/MB.Client.Gateway.zip"
-      artifact: "ABF.PaymentHoliday.API.$(Build.BuildNumber)"
+      artifact: "MB.API.$(Build.BuildNumber)"
     displayName: "Publishing the api artifact"
 
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: "$(Build.ArtifactStagingDirectory)/microservice"
-      artifact: "ABF.PaymentHoliday.MicroServices.$(Build.BuildNumber)"
+      artifact: "MB.MicroServices.$(Build.BuildNumber)"
     displayName: "Publishing the microservice artifacts"
 
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: "$(Build.ArtifactStagingDirectory)/infrastructure.zip"
-      ArtifactName: "ABF.PaymentHoliday.Infrastructure.$(Build.BuildNumber)"
+      ArtifactName: "MB.Infrastructure.$(Build.BuildNumber)"
     displayName: "Publishing the MB.Azure infrastructure artifact"
-
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: "./API/MB/Component/Client/RegistrationDataTool/bin/$(BuildConfiguration)/netcoreapp3.1/publish"
-      artifact: "RegistrationDataTool.$(Build.BuildNumber)"
-    displayName: "Publishing the registration data tool artifact"
-
-
-
-
-
-  - task: CopyFiles@2
-    displayName: 'Copy integration test files to integration test artifact'
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)'
-      Contents: '**\Test\Integration\**\bin\$(BuildConfiguration)\**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/test/integration'
-
-  - task: ArchiveFiles@2
-    displayName: 'Archive files: test'
-    inputs:
-      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\test\integration'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/test.integration.zip'
-      replaceExistingArchive: true
-
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: "$(Build.ArtifactStagingDirectory)/test.integration.zip"
-      artifactName: "ABF.PaymentHoliday.Test.Integration.$(Build.BuildNumber)"
-    displayName: 'Publish Artifact Integration test'
-
-
-- job: UI
-  displayName: 'Build UI'
-  pool:
-    vmImage: 'ubuntu-latest'
-
-  steps:
-
-  - task: NodeTool@0
-    inputs:
-      versionSpec: "12.x"
-    displayName: "Install Node.js"
-
-  # NPM modules and Cypress binary should be cached
-  # otherwise the install will be too slow
-  # https://docs.microsoft.com/en-us/azure/devops/pipelines/caching/?view=azure-devops
-  # since the username / user home directory are not available via system variables
-  # (there is even an open question about it)
-  # https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops
-  # just use "/home/vsts" for now
-  # Copied from : https://github.com/cypress-io/cypress-example-kitchensink/blob/HEAD/azure-ci.yml
-  - task: CacheBeta@1
-    inputs:
-        key: npm | $(Agent.OS) | UI/package-lock.json
-        path: /home/vsts/.npm
-        restoreKeys: npm | $(Agent.OS) | UI/package-lock.json
-    displayName: Cache NPM packages
-  - task: CacheBeta@1
-    inputs:
-        key: cypress | $(Agent.OS) | UI/package-lock.json
-        path: /home/vsts/.cache/Cypress
-        restoreKeys: cypress | $(Agent.OS) | UI/package-lock.json
-    displayName: Cache Cypress binary
-
-  - task: Npm@1
-    inputs:
-      command: "custom"
-      workingDir: "UI"
-      customCommand: "install -g @angular/cli"
-    displayName: "Install angular cli"
-
-  - task: Npm@1
-    inputs:
-      command: "install"
-      workingDir: "UI"
-    displayName: "Install Dependencies"
-
-  - script: |
-      cd UI
-      ng test --ci --coverage --coverageReporters=cobertura --coverageReporters=html
-    displayName: "Unit testing UI"
-
-  - task: Npm@1
-    displayName: "E2E testing UI"
-    inputs:
-      command: "custom"
-      workingDir: "UI"
-      customCommand: "run ci:e2e"
-
-  - script: |
-      cd UI
-      ng build --prod
-    displayName: "Building UI artifact"
-
-  - task: DeleteFiles@1
-    displayName: "Removing local configs"
-    inputs:
-      SourceFolder: 'UI/dist/ABF-Payment-Holiday-UI/configs'
-      Contents: 'config.*.json'
-
-  - task: PowerShell@2
-    inputs:
-      targetType: "inline"
-      script: |
-        $buildNumber='$(Build.BuildNumber)'
-        Write-Host("##vso[task.setvariable variable=appVersion;]$buildNumber")
-    displayName: "Assign predefined variable as variable"
-
-  - task: FileTransform@2
-    inputs:
-      folderPath: "./UI/dist/ABF-Payment-Holiday-UI/configs"
-      xmlTransformationRules:
-      jsonTargetFiles: "**.json"
-    displayName: "Update Application Version in UI config files"
-
-  - task: ArchiveFiles@2
-    displayName: "Archive the UI App"
-    inputs:
-      rootFolderOrFile: "./UI/dist/ABF-Payment-Holiday-UI"
-      includeRootFolder: false
-      archiveType: "zip"
-      archiveFile: '$(Build.ArtifactStagingDirectory)/MB.Client.App.zip'
-      replaceExistingArchive: true
-
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: "$(Build.ArtifactStagingDirectory)/MB.Client.App.zip"
-      artifact: "ABF.PaymentHoliday.UI.$(Build.BuildNumber)"
-    displayName: "Publishing the UI artifact"
-
-  - task: PublishTestResults@2
-    condition: succeededOrFailed()
-    inputs:
-      testResultsFormat: "JUnit"
-      testResultsFiles: "UI/junit.xml"
-      mergeTestResults: true
-      failTaskOnFailedTests: true
-    displayName: "Publishing Test Results"
-
-  - task: PublishCodeCoverageResults@1
-    inputs:
-      codeCoverageTool: "Cobertura"
-      summaryFileLocation: "./UI/coverage/cobertura-coverage.xml"
-      reportDirectory: "./UI/coverage/"
-    displayName: "Publishing Code Coverage Results"
-
-  - task: PublishPipelineArtifact@1
-    inputs:
-      targetPath: "./UI/app_offline.htm"
-      artifact: "appOffline"
-    displayName: "Publishing the app_offline artifact"

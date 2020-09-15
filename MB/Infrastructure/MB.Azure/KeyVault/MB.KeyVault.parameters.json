@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MB.namePrefix": {
+      "value": "mb"
+    },
+    "MB.environment": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.sequenceNumber": {
+      "value": 1
+    },
+    "MB.KeyVault.keyVaultName": {
+      "value": "mbpoc"
+    },
+    "MB.KeyVault.keyVaultDisplayName": {
+      "value": "MB.KeyVault"
+    },
+    "MB.Gateway.baseUrl": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.KeyVault.existsWithinTargetResourceGroup": {
+      "value": true
+    },
+    "MB.LogAnalytics.workspaceName": {
+      "value": "io-p-loganalytics"
+    },
+    "MB.LogAnalytics.workSpaceResourceGroupName": {
+      "value": "io-p-monitoring"
+    },
+    "MB.CommunicationAccess.Smtp.server": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.CommunicationAccess.Smtp.port": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.CommunicationAccess.Smtp.enableTls": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.CommunicationAccess.Smtp.username": {
+      "value": ""
+    },
+    "MB.CommunicationAccess.Smtp.password": {
+      "value": ""
+    },
+    "MB.ApplicationInsights.applicationInsightsName": {
+      "value": "mbpoc"
+    },
+    "MB.ServiceBus.serviceBusNamespaceName": {
+      "value": "messagebus"
+    },
+    "MB.Api.AppService.appServiceName": {
+      "value": "gateway"
+    },
+    "MB.Message1.AppService.appServiceName": {
+      "value": "message1"
+    },
+    "MB.Message2.AppService.appServiceName": {
+      "value": "message2"
+    }
+  }
+}
