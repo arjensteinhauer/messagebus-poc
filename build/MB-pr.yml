@@ -13,7 +13,7 @@ variables:
 
 jobs:
 - job: API
-  displayName: 'Build API'
+  displayName: 'Build solution'
   pool:
     vmImage: 'windows-latest'
 
@@ -22,22 +22,15 @@ jobs:
 
   - task: NuGetCommand@2
     inputs:
-      restoreSolution: "API/**/*.sln"
+      restoreSolution: "**/*.sln"
     displayName: "Restoring NuGet Packages"
 
   - task: DotNetCoreCLI@2
     inputs:
       command: "build"
-      projects: "API/**/*.csproj"
+      projects: "**/*.csproj"
       arguments: "--configuration $(BuildConfiguration)"
-    displayName: "Build API Solution"
-
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: test
-      projects: "API/Test/Unit/**/*.csproj"
-      arguments: '--configuration $(buildConfiguration) --collect "Code coverage" --settings "API\CodeCoverage.runsettings"'
-    displayName: "Testing API"
+    displayName: "Build Solution"
 
   - task: DotNetCoreCLI@2
     inputs:
@@ -46,71 +39,8 @@ jobs:
       arguments: "--configuration $(BuildConfiguration) -r win10-x64 --self-contained true"
       zipAfterPublish: false
       modifyOutputPath: false
-    displayName: "Building API artifact"
+    displayName: "Building artifact"
 
   - template: steps/merge-arm-templates.yml
     parameters:
-      workingDirectory: API/MB/Infrastructure/MB.Azure
-
-- job: UI
-  displayName: 'Build UI'
-  pool:
-    vmImage: 'ubuntu-latest'
-
-  steps:
-
-  - task: NodeTool@0
-    inputs:
-      versionSpec: "12.x"
-    displayName: "Install Node.js"
-
-  # NPM modules and Cypress binary should be cached
-  # otherwise the install will be too slow
-  # https://docs.microsoft.com/en-us/azure/devops/pipelines/caching/?view=azure-devops
-  # since the username / user home directory are not available via system variables
-  # (there is even an open question about it)
-  # https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops
-  # just use "/home/vsts" for now
-  # Copied from : https://github.com/cypress-io/cypress-example-kitchensink/blob/HEAD/azure-ci.yml
-  - task: CacheBeta@1
-    inputs:
-        key: npm | $(Agent.OS) | UI/package-lock.json
-        path: /home/vsts/.npm
-        restoreKeys: npm | $(Agent.OS) | UI/package-lock.json
-    displayName: Cache NPM packages
-  - task: CacheBeta@1
-    inputs:
-        key: cypress | $(Agent.OS) | UI/package-lock.json
-        path: /home/vsts/.cache/Cypress
-        restoreKeys: cypress | $(Agent.OS) | UI/package-lock.json
-    displayName: Cache Cypress binary
-
-  - task: Npm@1
-    inputs:
-      command: "custom"
-      workingDir: "UI"
-      customCommand: "install -g @angular/cli"
-    displayName: "Install angular cli"
-
-  - task: Npm@1
-    inputs:
-      command: "install"
-      workingDir: "UI"
-    displayName: "Install Dependencies"
-
-  - script: |
-      cd UI
-      ng test --ci --coverage --coverageReporters=cobertura --coverageReporters=html
-    displayName: "Testing UI"
-
-  - task: Npm@1
-    displayName: "E2E testing UI"
-    inputs:
-      command: "custom"
-      workingDir: "UI"
-      customCommand: "run ci:e2e"
-
-  - script: |
-      cd UI
-      ng build --prod
-    displayName: "Building UI artifact"
+      workingDirectory: MB/Infrastructure/MB.Azure
