@@ -117,7 +117,7 @@ namespace MB.Microservice.Message1.WebJob
             services.AddScoped<ITenantContextFactory<TenantContext>, TenantContextFactory>();
             services.AddScoped<ITenantAccess, TenantAccess>();
 
-            // notification manager service
+            // Message1 manager service
             services.AddScoped<IMessage1ManagerFactory, Message1ManagerFactory>();
             services.AddScoped<IMessage1ManagerEvents, Message1ManagerEventsPublisher>();
 

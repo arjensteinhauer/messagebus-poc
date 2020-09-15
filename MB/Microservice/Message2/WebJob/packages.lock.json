@@ -48,6 +48,16 @@
           "Microsoft.Extensions.Logging.ApplicationInsights": "2.14.0"
         }
       },
+      "Microsoft.EntityFrameworkCore.Design": {
+        "type": "Direct",
+        "requested": "[3.1.7, )",
+        "resolved": "3.1.7",
+        "contentHash": "gSRNa758T3dCqg5JUvOMMfDxx1Y8oFipf6t2bMg8KDpNyzVfp2YmjUsdQHDDIjiG4X8m3jkkykQPqBS0GsJD/A==",
+        "dependencies": {
+          "Microsoft.CSharp": "4.7.0",
+          "Microsoft.EntityFrameworkCore.Relational": "3.1.7"
+        }
+      },
       "Microsoft.Extensions.Configuration": {
         "type": "Direct",
         "requested": "[3.1.7, )",
@@ -347,8 +357,8 @@
       },
       "Microsoft.CSharp": {
         "type": "Transitive",
-        "resolved": "4.5.0",
-        "contentHash": "kaj6Wb4qoMuH3HySFJhxwQfe8R/sJsNJnANrvv8WdFPMoNbKY5htfNscv+LHCu5ipz+49m2e+WQXpLXr9XYemQ=="
+        "resolved": "4.7.0",
+        "contentHash": "pTj+D3uJWyN3My70i2Hqo+OXixq3Os2D1nJ2x92FFo6sk8fYS1m1WLNTs0Dc1uPaViH0YvEEwvzddQ7y4rhXmA=="
       },
       "Microsoft.Data.SqlClient": {
         "type": "Transitive",
@@ -2177,6 +2187,25 @@
           "System.Xml.XmlDocument": "4.3.0"
         }
       },
+      "mb.access.tenant.database": {
+        "type": "Project",
+        "dependencies": {
+          "MB.Utilities": "1.0.0",
+          "Microsoft.EntityFrameworkCore.SqlServer": "3.1.7"
+        }
+      },
+      "mb.access.tenant.interface": {
+        "type": "Project"
+      },
+      "mb.access.tenant.service": {
+        "type": "Project",
+        "dependencies": {
+          "MB.Access.Tenant.Database": "1.0.0",
+          "MB.Access.Tenant.Interface": "1.0.0",
+          "MB.Utilities": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "3.1.7"
+        }
+      },
       "mb.client.gateway.interface": {
         "type": "Project"
       },
@@ -2186,6 +2215,7 @@
       "mb.manager.message2.service": {
         "type": "Project",
         "dependencies": {
+          "MB.Access.Tenant.Interface": "1.0.0",
           "MB.Client.Gateway.Interface": "1.0.0",
           "MB.Manager.Message2.Interface": "1.0.0",
           "Microsoft.Extensions.Logging.Abstractions": "3.1.7"

@@ -9,7 +9,6 @@
   <ItemGroup>
     <None Remove="appsettings.Development.json" />
     <None Remove="appsettings.json" />
-    <None Remove="ee571956-47bc-443f-b23c-29e568eb3098.tmp" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.Development.json">

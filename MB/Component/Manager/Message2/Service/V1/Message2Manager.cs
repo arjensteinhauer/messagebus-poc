@@ -1,4 +1,5 @@
-﻿using MB.Manager.Message2.Interface.V1;
+﻿using MB.Access.Tenant.Interface.V1;
+using MB.Manager.Message2.Interface.V1;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -10,11 +11,13 @@ namespace MB.Manager.Message2.Service.V1
 {
     public class Message2Manager : IMessage2Manager, IAmAliveEvent_External
     {
+        private readonly ITenantAccess _tenantAccess;
         private readonly IMessage2ManagerEvents _message1ManagerEvents;
         private readonly ILogger _logger;
 
-        public Message2Manager(IMessage2ManagerEvents message1ManagerEvents, ILogger<Message2Manager> logger)
+        public Message2Manager(ITenantAccess tenantAccess, IMessage2ManagerEvents message1ManagerEvents, ILogger<Message2Manager> logger)
         {
+            _tenantAccess = tenantAccess;
             _message1ManagerEvents = message1ManagerEvents;
             _logger = logger;
         }
@@ -23,6 +26,8 @@ namespace MB.Manager.Message2.Service.V1
         {
             var result = $"{request.Input} -> \t {Environment.MachineName}.{GetType().Namespace}.{GetType().Name}.{nameof(Echo)} \n";
             _logger.LogInformation(result);
+
+            result = await _tenantAccess.Echo($"{result} \t\t");
 
             await _message1ManagerEvents.OnEchoed(new EchoedEventData { Result = result });
 
@@ -33,6 +38,8 @@ namespace MB.Manager.Message2.Service.V1
         {
             var result = $"Received message '{eventData.Message}'. {Environment.MachineName}.{GetType().Namespace}.{GetType().Name}.{nameof(OnAmAlive)} is alive too.";
             _logger.LogInformation(result);
+
+            await _tenantAccess.StoreMessage(new StoreMessageRequest { MessageDetails = new Message { Subject = "Message2.OnAmAlive", Body = result } });
 
             await _message1ManagerEvents.OnAmAlive(new AmAliveEventData { Message = result });
         }

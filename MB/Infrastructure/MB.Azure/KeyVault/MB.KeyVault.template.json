@@ -1,0 +1,451 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MB.namePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Prefix for the resource names."
+      }
+    },
+    "MB.environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment of the resource. E.g. d, t, a or p."
+      }
+    },
+    "MB.sequenceNumber": {
+      "type": "int",
+      "metadata": {
+        "description": "Sequence number for the resources."
+      }
+    },
+    "MB.KeyVault.keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Key Vault"
+      }
+    },
+    "MB.KeyVault.keyVaultDisplayName": {
+      "type": "string",
+      "metadata": {
+        "description": "Display name of the Key Vault"
+      }
+    },
+    "MB.Gateway.baseUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "The baseUrl for the call to gateway"
+      }
+    },
+    "MB.KeyVault.existsWithinTargetResourceGroup": {
+      "type": "bool",
+      "metadata": {
+        "description": "Specifies if the vault already exists in the targeted resource group (workaround for: https://github.com/Azure/azure-resource-manager-schemas/issues/521)"
+      }
+    },
+    "MB.KeyVault.keyVaultSku": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [ "Standard", "Premium" ],
+      "metadata": {
+        "description": "SKU for the vault"
+      }
+    },
+    "MB.KeyVault.enabledForDeployment": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies if the vault is enabled for VM or Service Fabric deployment"
+      }
+    },
+    "MB.KeyVault.enabledForTemplateDeployment": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies if the vault is enabled for ARM template deployment"
+      }
+    },
+    "MB.KeyVault.enableVaultForVolumeEncryption": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Specifies if the vault is enabled for volume encryption"
+      }
+    },
+    "MB.LogAnalytics.subscriptionId": {
+      "type": "string",
+      "defaultvalue": "d6276dfa-1b40-4c1f-8fd5-33cacc328217"
+    },
+    "MB.LogAnalytics.workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace name"
+      }
+    },
+    "MB.LogAnalytics.workSpaceResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group name of Log Analytics workspace."
+      }
+    },
+    "MB.CommunicationAccess.Smtp.server": {
+      "type": "string",
+      "metadata": {
+        "description": "smtp server host"
+      }
+    },
+    "MB.CommunicationAccess.Smtp.port": {
+      "type": "int",
+      "metadata": {
+        "description": "smtp server port"
+      }
+    },
+    "MB.CommunicationAccess.Smtp.enableTls": {
+      "type": "bool",
+      "metadata": {
+        "description": "smtp server enable tls"
+      }
+    },
+    "MB.CommunicationAccess.Smtp.username": {
+      "type": "string",
+      "metadata": {
+        "description": "smtp server enable Username"
+      }
+    },
+    "MB.CommunicationAccess.Smtp.password": {
+      "type": "string",
+      "metadata": {
+        "description": "smtp server enable Password"
+      }
+    },
+    "MB.ApplicationInsights.applicationInsightsName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "MB.ServiceBus.serviceBusNamespaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Service Bus namespace"
+      }
+    },
+    "MB.Api.AppService.appServiceName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "MB.Message1.AppService.appServiceName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "MB.Message2.AppService.appServiceName": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "variables": {
+    "MB.KeyVault.keyVaultName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.KeyVault.keyVaultName'))]",
+    "MB.ApplicationInsights.applicationInsightsName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.ApplicationInsights.applicationInsightsName'))]",
+    "MB.ServiceBus.serviceBusDefaultSASKeyName": "RootManageSharedAccessKey",
+    "MB.ServiceBus.serviceBusNamespaceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.ServiceBus.serviceBusNamespaceName'))]",
+    "MB.ServiceBus.serviceBusIdentityResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('MB.ServiceBus.serviceBusNamespaceName'), variables('MB.ServiceBus.serviceBusDefaultSASKeyName'))]",
+    "MB.ServiceBus.sbVersion": "2017-04-01",
+    "MB.Api.AppService.appResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Api.AppService.appServiceName'))]",
+    "MB.Message1.AppService.appResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Message1.AppService.appServiceName'))]",
+    "MB.Message2.AppService.appResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Message2.AppService.appServiceName'))]",
+    "MB.Api.AppService.identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('MB.Api.AppService.appResourceName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
+    "MB.Message1.AppService.identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('MB.Message1.AppService.appResourceName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
+    "MB.Message2.AppService.identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('MB.Message2.AppService.appResourceName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]"
+  },
+  "resources": [
+    {
+      "name": "[variables('MB.KeyVault.keyVaultName')]",
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2018-02-14",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "[parameters('MB.KeyVault.keyVaultDisplayName')]"
+      },
+      "properties": {
+        "sku": {
+          "name": "[parameters('MB.KeyVault.keyVaultSku')]",
+          "family": "A"
+        },
+        "tenantId": "[subscription().tenantId]",
+        "accessPolicies": "[if(parameters('MB.KeyVault.existsWithinTargetResourceGroup'), json('null'), json('[]'))]",
+        "createMode": "[if(parameters('MB.KeyVault.existsWithinTargetResourceGroup'), 'recover', 'create')]",
+        "MB.KeyVault.enabledForDeployment": "[parameters('MB.KeyVault.enabledForDeployment')]",
+        "MB.KeyVault.enabledForTemplateDeployment": "[parameters('MB.KeyVault.enabledForTemplateDeployment')]",
+        "enabledForVolumeEncryption": "[parameters('MB.KeyVault.enableVaultForVolumeEncryption')]"
+      },
+      "resources": [
+        {
+          "type": "providers/locks",
+          "name": "[io.lockName(variables('MB.KeyVault.keyVaultName'), 1)]",
+          "apiVersion": "2017-04-01",
+          "dependsOn": [
+            "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+          ],
+          "properties": {
+            "level": "CannotDelete",
+            "notes": "Key Vault should not be deleted"
+          }
+        },
+        {
+          "type": "providers/diagnosticSettings",
+          "name": "Microsoft.Insights/service",
+          "dependsOn": [
+            "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+          ],
+          "apiVersion": "2017-05-01-preview",
+          "location": "westeurope",
+          "properties": {
+            "workspaceId": "[io.workspace(parameters('MB.LogAnalytics.subscriptionId'), parameters('MB.LogAnalytics.workspaceName'), parameters('MB.LogAnalytics.workSpaceResourceGroupName'))]",
+            "metrics": [
+              {
+                "category": "AllMetrics",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": 30
+                }
+              }
+            ],
+            "logs": [
+              {
+                "category": "AuditEvent",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 365,
+                  "enabled": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "[concat(variables('MB.KeyVault.keyVaultName'), '/add')]",
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[reference(variables('MB.Api.AppService.identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+            "objectId": "[reference(variables('MB.Api.AppService.identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+            "permissions": {
+              "secrets": [ "get", "list" ]
+            }
+          },
+          {
+            "tenantId": "[reference(variables('MB.Message1.AppService.identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+            "objectId": "[reference(variables('MB.Message1.AppService.identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+            "permissions": {
+              "secrets": [ "get", "list" ]
+            }
+          },
+          {
+            "tenantId": "[reference(variables('MB.Message2.AppService.identityResourceId'), '2015-08-31-PREVIEW').tenantId]",
+            "objectId": "[reference(variables('MB.Message2.AppService.identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+            "permissions": {
+              "secrets": [ "get", "list" ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('MB.Api.AppService.appResourceName'))]",
+        "[resourceId('Microsoft.Web/sites', variables('MB.Message1.AppService.appResourceName'))]",
+        "[resourceId('Microsoft.Web/sites', variables('MB.Message2.AppService.appResourceName'))]",
+        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--Server')]",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "value": "[parameters('MB.CommunicationAccess.Smtp.server')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--Port')]",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "value": "[parameters('MB.CommunicationAccess.Smtp.port')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--EnableTls')]",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "value": "[parameters('MB.CommunicationAccess.Smtp.enableTls')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--Username')]",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "value": "[parameters('MB.CommunicationAccess.Smtp.username')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Smtp--Password')]",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "value": "[parameters('MB.CommunicationAccess.Smtp.password')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('MB.KeyVault.keyVaultName'), '', '/ApplicationInsightsInstrumentationKey')]",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "value": "[reference(concat('microsoft.insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]",
+        "[resourceId('microsoft.insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('MB.KeyVault.keyVaultName'), '','/Gateway--BaseUrl')]",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "value": "[parameters('MB.Gateway.baseUrl')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(variables('MB.KeyVault.keyVaultName'), '', '/ConnectionStrings--MessageBus')]",
+      "apiVersion": "2018-02-14",
+      "properties": {
+        "value": "[listkeys(variables('MB.ServiceBus.serviceBusIdentityResourceId'), variables('MB.ServiceBus.sbVersion')).primaryConnectionString]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.KeyVault/vaults/', variables('MB.KeyVault.keyVaultName'))]",
+        "[concat('Microsoft.ServiceBus/namespaces/', variables('MB.ServiceBus.serviceBusNamespaceName'))]"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "namespace": "io",
+      "members": {
+        "Name": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), '-', parameters('environment'), '-', parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "NameWithoutHypen": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), parameters('environment'), parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "lockName": {
+          "parameters": [
+            {
+              "name": "resourceName",
+              "type": "string"
+            },
+            {
+              "name": "instanceCount",
+              "type": "int"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat('/Microsoft.Authorization/', parameters('resourceName'), padleft(parameters('instanceCount'), 2, '0'), '-lock'))]"
+          }
+        },
+        "workspace": {
+          "parameters": [
+            {
+              "name": "subscriptionId",
+              "type": "string"
+            },
+            {
+              "name": "workspaceName",
+              "type": "string"
+            },
+            {
+              "name": "workspaceResourceGroup",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[resourceId(parameters('subscriptionId'), parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "MB.KeyVault.UniqueKeyVaultName": {
+      "type": "string",
+      "value": "[variables('MB.KeyVault.keyVaultName')]"
+    }
+  }
+}

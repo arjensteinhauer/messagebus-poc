@@ -1,0 +1,331 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MB.namePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Prefix for the resource names."
+      }
+    },
+    "MB.environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment of the resource. E.g. d, t, a or p."
+      }
+    },
+    "MB.sequenceNumber": {
+      "type": "int",
+      "metadata": {
+        "description": "Sequence number for the resources."
+      }
+    },
+    "MB.Message1.AppService.appServiceName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "MB.MicroServices.AppService.hostingPlanName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "MB.KeyVault.keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Key Vault"
+      }
+    },
+    "MB.LogAnalytics.subscriptionId": {
+      "type": "string",
+      "defaultvalue": "d6276dfa-1b40-4c1f-8fd5-33cacc328217"
+    },
+    "MB.LogAnalytics.workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics workspace name"
+      }
+    },
+    "MB.LogAnalytics.workSpaceResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource group name of Log Analytics workspace."
+      }
+    },
+    "MB.ApplicationInsights.applicationInsightsName": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "variables": {
+    "MB.Message1.AppService.appResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.Message1.AppService.appServiceName'))]",
+    "MB.MicroServices.AppService.planResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.MicroServices.AppService.hostingPlanName'))]",
+    "MB.KeyVault.keyVaultName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.KeyVault.keyVaultName'))]",
+    "MB.ApplicationInsights.applicationInsightsName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.ApplicationInsights.applicationInsightsName'))]"
+  },
+  "functions": [
+    {
+      "namespace": "io",
+      "members": {
+        "Name": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), '-', parameters('environment'), '-', parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "NameWithoutHypen": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), parameters('environment'), parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "lockName": {
+          "parameters": [
+            {
+              "name": "resourceName",
+              "type": "string"
+            },
+            {
+              "name": "instanceCount",
+              "type": "int"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat('/Microsoft.Authorization/', parameters('resourceName'), padleft(parameters('instanceCount'), 2, '0'), '-lock'))]"
+          }
+        },
+        "workspace": {
+          "parameters": [
+            {
+              "name": "subscriptionId",
+              "type": "string"
+            },
+            {
+              "name": "workspaceName",
+              "type": "string"
+            },
+            {
+              "name": "workspaceResourceGroup",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[resourceId(parameters('subscriptionId'), parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          }
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "name": "[variables('MB.Message1.AppService.appResourceName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "app",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverFarms/', variables('MB.MicroServices.AppService.planResourceName'))]",
+        "[resourceId('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]": "empty",
+        "displayName": "Message1 MicroService WebJob"
+      },
+      "resources": [
+        {
+          "type": "Microsoft.Web/sites/providers/diagnosticSettings",
+          "name": "[concat(variables('MB.Message1.AppService.appResourceName'), '/Microsoft.Insights/logs')]",
+          "apiVersion": "2017-05-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('MB.Message1.AppService.appResourceName'))]"
+          ],
+          "properties": {
+            "workspaceId": "[io.workspace(parameters('MB.LogAnalytics.subscriptionId'), parameters('MB.LogAnalytics.workspaceName'), parameters('MB.LogAnalytics.workSpaceResourceGroupName'))]",
+            "logs": [
+              {
+                "category": "AppServiceConsoleLogs",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              },
+              {
+                "category": "AppServiceAppLogs",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ],
+            "metrics": [
+              {
+                "category": "AllMetrics",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 0,
+                  "enabled": false
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "name": "[variables('MB.Message1.AppService.appResourceName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('MB.MicroServices.AppService.planResourceName'))]",
+        "httpsOnly": true,
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(concat('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey]"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[concat('InstrumentationKey=', reference(concat('Microsoft.Insights/components/', variables('MB.ApplicationInsights.applicationInsightsName'))).InstrumentationKey)]"
+            },
+            {
+              "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+              "value": "~2"
+            },
+            {
+              "name": "XDT_MicrosoftApplicationInsights_Mode",
+              "value": "default"
+            },
+            {
+              "name": "KeyVaultName",
+              "value": "[variables('MB.KeyVault.keyVaultName')]"
+            }
+          ],
+          "metadata": [
+            {
+              "name": "CURRENT_STACK",
+              "value": "dotnetcore"
+            }
+          ],
+          "connectionStrings": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(variables('MB.Message1.AppService.appResourceName'), '/web')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('MB.Message1.AppService.appResourceName'))]"
+      ],
+      "properties": {
+        "numberOfWorkers": 1,
+        "defaultDocuments": [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php",
+          "hostingstart.html"
+        ],
+        "netFrameworkVersion": "v4.0",
+        "phpVersion": "5.6",
+        "requestTracingEnabled": false,
+        "remoteDebuggingEnabled": false,
+        "remoteDebuggingVersion": "VS2019",
+        "httpLoggingEnabled": false,
+        "logsDirectorySizeLimit": 35,
+        "detailedErrorLoggingEnabled": false,
+        "publishingUsername": "[concat('$', variables('MB.Message1.AppService.appResourceName'))]",
+        "scmType": "None",
+        "use32BitWorkerProcess": false,
+        "webSocketsEnabled": false,
+        "alwaysOn": true,
+        "managedPipelineMode": "Integrated",
+        "virtualApplications": [
+          {
+            "virtualPath": "/",
+            "physicalPath": "site\\wwwroot",
+            "preloadEnabled": false
+          }
+        ],
+        "loadBalancing": "LeastRequests",
+        "experiments": {
+          "rampUpRules": []
+        },
+        "autoHealEnabled": false,
+        "localMySqlEnabled": false,
+        "ipSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictionsUseMain": false,
+        "http20Enabled": false,
+        "minTlsVersion": "1.2",
+        "ftpsState": "AllAllowed",
+        "reservedInstanceCount": 0
+      }
+    }
+  ],
+  "outputs": {
+    "MB.Message1.AppService.PrincipalName": {
+      "type": "string",
+      "value": "[variables('MB.Message1.AppService.appResourceName')]"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MB.namePrefix": {
+      "value": "mb"
+    },
+    "MB.environment": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.sequenceNumber": {
+      "value": 1
+    },
+    "MB.Database.instanceCount": {
+      "value": 1
+    },
+    "MB.Database.sqlServerName": {
+      "value": "sqlsvr"
+    },
+    "MB.Database.sqlTenantMessageDatabaseName": {
+      "value": "TenantMessage"
+    },
+    "MB.Database.collation": {
+      "value": "SQL_Latin1_General_CP1_CI_AS"
+    },
+    "MB.Database.edition": {
+      "value": "Basic"
+    },
+    "MB.Database.maxSizeBytes": {
+      "value": "1073741824"
+    },
+    "MB.Database.requestedServiceObjectiveName": {
+      "value": "Basic"
+    },
+    "MB.Database.sqlAdminUsername": {
+      "value": "sqladmin"
+    },
+    "MB.Database.sqlAdminPassword": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.Database.aadAdminLogin": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.Database.aadAdminLoginApplicationId": {
+      "value": "SetAtReleaseTime"
+    },
+    "MB.Diagnostics.StorageAccount.name": {
+      "value": "diagnostics"
+    },
+    "MB.LogAnalytics.workspaceName": {
+      "value": "io-p-loganalytics"
+    },
+    "MB.LogAnalytics.workSpaceResourceGroupName": {
+      "value": "io-p-monitoring"
+    },
+    "MB.KeyVault.keyVaultName": {
+      "value": "mbpoc"
+    }
+  }
+}

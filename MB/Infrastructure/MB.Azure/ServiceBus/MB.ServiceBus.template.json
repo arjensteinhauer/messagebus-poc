@@ -1,0 +1,172 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MB.namePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Prefix for the resource names."
+      }
+    },
+    "MB.environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment of the resource. E.g. d, t, a or p."
+      }
+    },
+    "MB.sequenceNumber": {
+      "type": "int",
+      "metadata": {
+        "description": "Sequence number for the resources."
+      }
+    },
+    "MB.ServiceBus.serviceBusNamespaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Service Bus namespace"
+      }
+    },
+    "MB.ServiceBus.serviceBusDisplayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "MB.ServiceBus.serviceBusSku": {
+      "type": "string",
+      "allowedValues": ["Basic", "Standard", "Premium"],
+      "defaultValue": "Standard",
+      "metadata": {
+        "description": "The messaging tier for service Bus namespace"
+      }
+    }
+  },
+  "variables": {
+    "MB.ServiceBus.defaultSASKeyName": "RootManageSharedAccessKey",
+    "MB.ServiceBus.serviceBusNamespaceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.ServiceBus.serviceBusNamespaceName'))]",
+    "MB.ServiceBus.defaultAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('MB.ServiceBus.serviceBusNamespaceName'), variables('MB.ServiceBus.defaultSASKeyName'))]",
+    "MB.ServiceBus.sbVersion": "2017-04-01"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-04-01",
+      "name": "[variables('MB.ServiceBus.serviceBusNamespaceName')]",
+      "type": "Microsoft.ServiceBus/namespaces",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "[parameters('MB.ServiceBus.serviceBusDisplayName')]"
+      },
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {}
+    }
+  ],
+  "functions": [
+    {
+      "namespace": "io",
+      "members": {
+        "Name": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), '-', parameters('environment'), '-', parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "NameWithoutHypen": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), parameters('environment'), parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "lockName": {
+          "parameters": [
+            {
+              "name": "resourceName",
+              "type": "string"
+            },
+            {
+              "name": "instanceCount",
+              "type": "int"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat('/Microsoft.Authorization/', parameters('resourceName'), padleft(parameters('instanceCount'), 2, '0'), '-lock'))]"
+          }
+        },
+        "workspace": {
+          "parameters": [
+            {
+              "name": "subscriptionId",
+              "type": "string"
+            },
+            {
+              "name": "workspaceName",
+              "type": "string"
+            },
+            {
+              "name": "workspaceResourceGroup",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[resourceId(parameters('subscriptionId'), parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "MB.ServiceBus.NamespaceDefaultConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('MB.ServiceBus.defaultAuthRuleResourceId'), variables('MB.ServiceBus.sbVersion')).primaryConnectionString]"
+    },
+    "MB.ServiceBus.UniqueServiceBusNamespaceName": {
+      "type": "string",
+      "value": "[variables('MB.ServiceBus.serviceBusNamespaceName')]"
+    },
+    "MB.ServiceBus.DefaultSharedAccessPolicyPrimaryKey": {
+      "type": "string",
+      "value": "[listkeys(variables('MB.ServiceBus.defaultAuthRuleResourceId'), variables('MB.ServiceBus.sbVersion')).primaryKey]"
+    },
+    "MB.ServiceBus.DefaultSharedAccessPolicyKeyName": {
+      "type": "string",
+      "value": "[variables('MB.ServiceBus.sbVersion')]"
+    }
+  }
+}

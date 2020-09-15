@@ -1,0 +1,234 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "MB.namePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Prefix for the resource names."
+      }
+    },
+    "MB.environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment of the resource. E.g. d, t, a or p."
+      }
+    },
+    "MB.sequenceNumber": {
+      "type": "int",
+      "metadata": {
+        "description": "Sequence number for the resources."
+      }
+    },
+    "MB.MicroServices.AppService.hostingPlanName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "MB.MicroServices.AppService.skuName": {
+      "type": "string",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "metadata": {
+        "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+      }
+    },
+    "MB.MicroServices.AppService.skuCapacity": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "metadata": {
+        "description": "Describes plan's instance count"
+      }
+    }
+  },
+  "variables": {
+    "MB.MicroServices.AppService.planResourceName": "[io.Name(parameters('MB.namePrefix'), parameters('MB.environment'), parameters('MB.sequenceNumber'), parameters('MB.MicroServices.AppService.hostingPlanName'))]"
+  },
+  "functions": [
+    {
+      "namespace": "io",
+      "members": {
+        "Name": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), '-', parameters('environment'), '-', parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "NameWithoutHypen": {
+          "parameters": [
+            {
+              "name": "namePrefix",
+              "type": "string"
+            },
+            {
+              "name": "environment",
+              "type": "string"
+            },
+            {
+              "name": "sequenceNumber",
+              "type": "int"
+            },
+            {
+              "name": "resourceName",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat(parameters('namePrefix'), parameters('environment'), parameters('resourceName'), padleft(parameters('sequenceNumber'), 2, '0')))]"
+          }
+        },
+        "lockName": {
+          "parameters": [
+            {
+              "name": "resourceName",
+              "type": "string"
+            },
+            {
+              "name": "instanceCount",
+              "type": "int"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(concat('/Microsoft.Authorization/', parameters('resourceName'), padleft(parameters('instanceCount'), 2, '0'), '-lock'))]"
+          }
+        },
+        "workspace": {
+          "parameters": [
+            {
+              "name": "subscriptionId",
+              "type": "string"
+            },
+            {
+              "name": "workspaceName",
+              "type": "string"
+            },
+            {
+              "name": "workspaceResourceGroup",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[resourceId(parameters('subscriptionId'), parameters('workspaceResourceGroup'), 'Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          }
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('MB.MicroServices.AppService.planResourceName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "HostingPlan"
+      },
+      "sku": {
+        "name": "[parameters('MB.MicroServices.AppService.skuName')]",
+        "capacity": "[parameters('MB.MicroServices.AppService.skuCapacity')]"
+      },
+      "properties": {
+        "name": "[variables('MB.MicroServices.AppService.planResourceName')]"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/autoscalesettings",
+      "apiVersion": "2014-04-01",
+      "name": "[concat(variables('MB.MicroServices.AppService.planResourceName'), '-', resourceGroup().name)]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]": "Resource",
+        "displayName": "AutoScaleSettings"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]"
+      ],
+      "properties": {
+        "profiles": [
+          {
+            "name": "Default",
+            "capacity": {
+              "minimum": 1,
+              "maximum": 2,
+              "default": 1
+            },
+            "rules": [
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT10M",
+                  "timeAggregation": "Average",
+                  "operator": "GreaterThan",
+                  "threshold": 80.0
+                },
+                "scaleAction": {
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": 1,
+                  "cooldown": "PT10M"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT1H",
+                  "timeAggregation": "Average",
+                  "operator": "LessThan",
+                  "threshold": 60.0
+                },
+                "scaleAction": {
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": 1,
+                  "cooldown": "PT1H"
+                }
+              }
+            ]
+          }
+        ],
+        "enabled": false,
+        "name": "[concat(variables('MB.MicroServices.AppService.planResourceName'), '-', resourceGroup().name)]",
+        "targetResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('MB.MicroServices.AppService.planResourceName'))]"
+      }
+    }
+  ]
+}
